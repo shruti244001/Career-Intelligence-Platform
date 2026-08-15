@@ -364,6 +364,7 @@ Next Best Action
                                |
                                v
                          Continuous Loop
+```
 
 ## 9. Core Product Capabilities
 
