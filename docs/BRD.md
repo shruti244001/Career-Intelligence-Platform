@@ -19,13 +19,13 @@ However, these resources are largely fragmented.
 
 Candidates are often required to determine for themselves:
 
-**What they should study.
+What they should study.
 Which resources they should follow.
 Which skills are most important for their target role.
 Whether they actually understand a topic or can apply it independently.
 Whether their performance is improving.
 How much preparation is enough.
-Whether they are ready for a particular interview.**
+Whether they are ready for a particular interview.
 
 CareerGraph AI aims to address this gap by creating a continuous feedback loop between career goals, candidate data, preparation activity, assessment performance, and interview simulation.
 
@@ -38,13 +38,13 @@ Candidates preparing for Software Engineering interviews have abundant access to
 
 A typical candidate may use:
 
-**LeetCode or other coding platforms for DSA.
+LeetCode or other coding platforms for DSA.
 YouTube and courses for concepts.
 AI assistants for explanations.
 LinkedIn and online communities for career guidance.
 Job portals for job descriptions.
 Mock-interview platforms for practice.
-Multiple roadmaps created by different educators and professionals.**
+Multiple roadmaps created by different educators and professionals.
 
 While this abundance of resources is useful, it can also create information overload and fragmented preparation.
 
