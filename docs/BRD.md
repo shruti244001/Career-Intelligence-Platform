@@ -1,15 +1,14 @@
-# CareerGraph AI
+# Business Requirements Document (BRD)
 
-**Business Requirements Document (BRD)**
+## CareerGraph AI
 
-| | |
-|---|---|
-| **Working Product Name** | CareerGraph AI |
-| **Project** | Patchamomma 2026 Build Phase |
-| **Document** | Business Requirements Document |
-| **Version** | 0.2 |
-| **Date** | 16 August 2026 |
-| **Status** | Draft |
+**Working Product Name:** CareerGraph AI  
+**Project:** Patchamomma 2026 Build Phase  
+**Document:** Business Requirements Document  
+**Version:** 0.2  
+**Date:** 16 August 2026  
+**Status:** Draft  
+**Repository:** Career-Intelligence-Platform
 
 ---
 
@@ -73,11 +72,28 @@ Current preparation workflows generally treat these activities independently.
 
 For example:
 
-- Resume → Job Search
-- LeetCode → DSA Practice
-- YouTube → Learning
-- Mock Interview → Interview Practice
-- AI Assistant → Questions / Explanations
+
+```
+Resume
+   ↓
+Job Search
+
+LeetCode
+   ↓
+DSA Practice
+
+YouTube
+   ↓
+Learning
+
+Mock Interview
+   ↓
+Interview Practice
+
+AI Assistant
+   ↓
+Questions / Explanations
+```
 
 There is often no unified intelligence connecting these activities.
 
@@ -255,22 +271,34 @@ These expectations should eventually be represented as configurable role profile
 CareerGraph AI will create a unified candidate intelligence layer connecting:
 
 ```
-Candidate Profile + Resume + Target Role + Job Description
-+ Skill Profile + Learning Activity + Coding Performance
-+ Mock Interview Performance
-        ↓
+Candidate Profile
+       +
+Resume
+       +
+Target Role
+       +
+Job Description
+       +
+Skill Profile
+       +
+Learning Activity
+       +
+Coding Performance
+       +
+Mock Interview Performance
+       ↓
 Career Intelligence Engine
-        ↓
+       ↓
 Skill Gap Analysis
-        ↓
+       ↓
 Priority Identification
-        ↓
+       ↓
 Personalized Preparation
-        ↓
+       ↓
 Interview Simulation
-        ↓
+       ↓
 Performance Evaluation
-        ↓
+       ↓
 Updated Candidate Profile
 ```
 
@@ -534,9 +562,26 @@ Instead, it should communicate:
 The core intelligence loop is:
 
 ```
-TARGET → ASSESS → IDENTIFY GAPS → PRIORITIZE → PREPARE
-   → PRACTICE → SIMULATE INTERVIEW → EVALUATE
-   → UPDATE PROFILE → RECOMMEND NEXT ACTION → Repeat
+TARGET
+  ↓
+ASSESS
+  ↓
+IDENTIFY GAPS
+  ↓
+PRIORITIZE
+  ↓
+PREPARE
+  ↓
+PRACTICE
+  ↓
+SIMULATE INTERVIEW
+  ↓
+EVALUATE
+  ↓
+UPDATE PROFILE
+  ↓
+RECOMMEND NEXT ACTION
+  ↺
 ```
 
 This continuous loop is the central differentiator of the platform.
@@ -751,18 +796,29 @@ Because the Patchamomma build window is limited, the MVP will focus on demonstra
 
 The MVP will include:
 
-- Candidate Profile.
-- Resume Analysis.
-- Target Role / Job Description Analysis.
-- Skill Gap Analysis.
-- Personalized Roadmap.
-- Representative Full Mock Interview.
-  - Coding Round.
-  - System Design Round.
-  - Behavioral Round.
-- AI Evaluation.
-- Readiness Dashboard.
-- Adaptive Recommendation.
+Candidate Profile
+       ↓
+Resume Analysis
+       ↓
+Target Role / Job Description Analysis
+       ↓
+Skill Gap Analysis
+       ↓
+Personalized Roadmap
+       ↓
+Representative Full Mock Interview
+       ↓
+Coding
+       +
+System Design
+       +
+Behavioral
+       ↓
+AI Evaluation
+       ↓
+Readiness Dashboard
+       ↓
+Adaptive Recommendation
 
 This provides an end-to-end demonstrable product.
 
@@ -876,13 +932,22 @@ Its differentiation is the connection between these activities.
 The platform combines:
 
 ```
-Career Goal + Candidate Profile + Job Requirements
-+ Learning Data + Coding Performance + Interview Performance
-        ↓
+Career Goal
+     +
+Candidate Profile
+     +
+Job Requirements
+     +
+Learning Data
+     +
+Coding Performance
+     +
+Interview Performance
+     ↓
 Career Intelligence
-        ↓
+     ↓
 Personalized Action
-        ↓
+     ↓
 Continuous Measurement
 ```
 
