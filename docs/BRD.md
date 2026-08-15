@@ -19,19 +19,19 @@ However, these resources are largely fragmented.
 
 Candidates are often required to determine for themselves:
 
-What they should study.
+- What they should study.
 
-Which resources they should follow.
+- Which resources they should follow.
 
-Which skills are most important for their target role.
+- Which skills are most important for their target role.
 
-Whether they actually understand a topic or can apply it independently.
+- Whether they actually understand a topic or can apply it independently.
 
-Whether their performance is improving.
+- Whether their performance is improving.
 
-How much preparation is enough.
+- How much preparation is enough.
 
-Whether they are ready for a particular interview.
+- Whether they are ready for a particular interview.
 
 CareerGraph AI aims to address this gap by creating a continuous feedback loop between career goals, candidate data, preparation activity, assessment performance, and interview simulation.
 
