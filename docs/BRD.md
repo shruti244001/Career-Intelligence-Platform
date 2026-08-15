@@ -535,9 +535,39 @@ The system should prioritize a small number of high-impact actions rather than o
 The core product loop is:
 
 ```
-TARGET → ASSESS → IDENTIFY GAPS → PRIORITIZE → PREPARE
-   → PRACTICE → SIMULATE → EVALUATE → UPDATE PROFILE
-   → RECOMMEND NEXT ACTION → REPEAT
+TARGET
+   |
+   v
+ASSESS
+   |
+   v
+IDENTIFY GAPS
+   |
+   v
+PRIORITIZE
+   |
+   v
+PREPARE
+   |
+   v
+PRACTICE
+   |
+   v
+SIMULATE
+   |
+   v
+EVALUATE
+   |
+   v
+UPDATE PROFILE
+   |
+   v
+RECOMMEND NEXT ACTION
+   |
+   +----------------------+
+                          |
+                          v
+                       REPEAT
 ```
 
 This feedback loop is the central differentiator of CareerGraph AI.
@@ -1014,16 +1044,38 @@ The following capabilities are core:
 The primary demonstration flow should be:
 
 1. Candidate creates profile
+          |
+          v
 2. Candidate selects target role and level
+          |
+          v
 3. Candidate uploads resume
+          |
+          v
 4. Candidate provides target job description
+          |
+          v
 5. System creates target profile
+          |
+          v
 6. System identifies skill gaps
+          |
+          v
 7. System recommends the highest-priority action
+          |
+          v
 8. Candidate completes interview assessment
+          |
+          v
 9. System evaluates performance using a rubric
+          |
+          v
 10. Candidate profile is updated
+          |
+          v
 11. System identifies the next best action
+          |
+          v
 12. Dashboard shows measurable progress
 
 This end-to-end loop is the primary MVP demonstration.
