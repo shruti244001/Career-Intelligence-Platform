@@ -1043,41 +1043,21 @@ The following capabilities are core:
 
 The primary demonstration flow should be:
 
-1. Candidate creates profile
-          |
-          v
-2. Candidate selects target role and level
-          |
-          v
-3. Candidate uploads resume
-          |
-          v
-4. Candidate provides target job description
-          |
-          v
-5. System creates target profile
-          |
-          v
-6. System identifies skill gaps
-          |
-          v
-7. System recommends the highest-priority action
-          |
-          v
-8. Candidate completes interview assessment
-          |
-          v
-9. System evaluates performance using a rubric
-          |
-          v
-10. Candidate profile is updated
-          |
-          v
-11. System identifies the next best action
-          |
-          v
-12. Dashboard shows measurable progress
 
+```mermaid
+flowchart TD
+    A["1. Candidate creates profile"] --> B["2. Candidate selects target role and level"]
+    B --> C["3. Candidate uploads resume"]
+    C --> D["4. Candidate provides target job description"]
+    D --> E["5. System creates target profile"]
+    E --> F["6. System identifies skill gaps"]
+    F --> G["7. System recommends highest-priority action"]
+    G --> H["8. Candidate completes interview assessment"]
+    H --> I["9. System evaluates performance using a rubric"]
+    I --> J["10. Candidate profile is updated"]
+    J --> K["11. System identifies the next best action"]
+    K --> L["12. Dashboard shows measurable progress"]
+```
 This end-to-end loop is the primary MVP demonstration.
 
 ---
