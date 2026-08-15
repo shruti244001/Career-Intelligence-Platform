@@ -1,167 +1,197 @@
 # Business Requirements Document (BRD)
 
-## CareerGraph AI
+# CareerGraph AI
 
 **Working Product Name:** CareerGraph AI  
 **Project:** Patchamomma 2026 Build Phase  
 **Document:** Business Requirements Document  
-**Version:** 0.2  
+**Version:** 0.3  
 **Date:** 16 August 2026  
-**Status:** Draft  
+**Status:** Draft - Refined MVP  
 **Repository:** Career-Intelligence-Platform
 
 ---
 
-## 1. Executive Summary
+# 1. Executive Summary
 
-CareerGraph AI is a data-driven, multi-agent AI platform designed to help Software Engineering candidates understand their current interview readiness, identify their highest-impact skill gaps, prepare strategically, and continuously evaluate their progress.
+CareerGraph AI is a data-driven, multi-agent AI platform designed to help Software Engineering candidates understand their current interview readiness, identify their highest-impact skill gaps, prepare strategically, and continuously measure whether their preparation is actually improving their readiness.
 
-Software Engineering candidates today have access to an enormous amount of preparation material, including coding platforms, courses, videos, roadmaps, job descriptions, mock-interview platforms, professional communities, and AI assistants.
+Software Engineering candidates today have access to a large number of preparation resources, including coding platforms, courses, videos, roadmaps, job descriptions, mock-interview platforms, professional communities, and AI assistants.
 
-However, these resources are largely fragmented.
+However, these resources are fragmented.
 
 Candidates are often required to determine for themselves:
 
 - What they should study.
-- Which resources they should follow.
-- Which skills are most important for their target role.
-- Whether they actually understand a topic or can apply it independently.
+- Which roadmap they should follow.
+- Which skills matter most for their target role.
+- Whether they actually understand a topic or have only studied it.
+- Whether they can independently solve unseen interview problems.
 - Whether their performance is improving.
+- What they should study next.
 - How much preparation is enough.
-- Whether they are ready for a particular interview.
+- Whether they are ready for an interview.
 
-CareerGraph AI aims to address this gap by creating a continuous feedback loop between career goals, candidate data, preparation activity, assessment performance, and interview simulation.
+CareerGraph AI addresses this gap by connecting:
 
-The platform will initially focus on Software Engineering roles across SDE-1, SDE-2, and SDE-3 levels, while maintaining an architecture that can eventually be extended to other professional career domains.
+- Career goals.
+- Candidate profile.
+- Resume.
+- Target job description.
+- Skill requirements.
+- Preparation activity.
+- Assessment performance.
+- Mock interview performance.
+
+The platform converts these signals into a continuously updated candidate readiness profile.
+
+The core product principle is:
+
+> **Do not just prepare. Measure whether your preparation is moving you toward interview readiness.**
+
+The initial MVP focuses on Software Engineering roles, particularly SDE-1, SDE-2, and SDE-3, while keeping the underlying architecture extensible to other technical careers in the future.
 
 ---
 
-## 2. Problem Statement
+# 2. Problem Statement
 
-### 2.1 Background
+## 2.1 Background
 
-Candidates preparing for Software Engineering interviews have abundant access to learning and preparation resources.
+Candidates preparing for Software Engineering interviews commonly use multiple disconnected tools.
 
-A typical candidate may use:
+A typical preparation workflow may look like:
 
-- LeetCode or other coding platforms for DSA.
+- LeetCode or coding platforms for DSA.
 - YouTube and courses for concepts.
-- AI assistants for explanations.
+- ChatGPT or other AI assistants for explanations.
 - LinkedIn and online communities for career guidance.
 - Job portals for job descriptions.
-- Mock-interview platforms for practice.
-- Multiple roadmaps created by different educators and professionals.
+- Mock interview platforms for interview practice.
+- Multiple online roadmaps for preparation planning.
 
-While this abundance of resources is useful, it can also create information overload and fragmented preparation.
+Each tool solves a specific problem.
 
-Candidates may follow one roadmap for some time, discover another recommendation, switch to it, and continue without having a reliable understanding of whether the chosen approach is actually improving their interview readiness.
+However, there is usually no unified intelligence layer connecting the information generated across these activities.
 
-### 2.2 Core Problem
+---
+
+## 2.2 Core Problem
 
 The fundamental problem is not the absence of preparation resources.
 
-The problem is the absence of an intelligent system that continuously answers:
+The problem is the absence of a system that continuously answers:
 
-- **Where am I now?**
-- **Where do I need to be for my target role?**
-- **What are my most important gaps?**
-- **What should I do next?**
-- **Is my preparation actually improving my interview readiness?**
+> **Where am I now?**
 
-Current preparation workflows generally treat these activities independently.
+> **Where do I need to be for my target role?**
 
-For example:
+> **What are my highest-priority gaps?**
 
+> **What should I do next?**
 
-```
-Resume
-   ↓
-Job Search
+> **Did my preparation actually improve my performance?**
 
-LeetCode
-   ↓
-DSA Practice
+> **Am I becoming interview-ready?**
 
-YouTube
-   ↓
-Learning
+Current preparation workflows are largely activity-driven rather than readiness-driven.
 
-Mock Interview
-   ↓
-Interview Practice
-
-AI Assistant
-   ↓
-Questions / Explanations
-```
-
-There is often no unified intelligence connecting these activities.
+A candidate may solve 100 coding problems, watch dozens of videos, and follow multiple roadmaps without being able to objectively determine whether their interview readiness has improved.
 
 ---
 
-## 3. User Pain Points
+# 3. User Pain Points
 
-CareerGraph AI addresses the following major pain points.
+## 3.1 Resource and Roadmap Overload
 
-### 3.1 Resource and Roadmap Overload
+Candidates encounter numerous:
 
-Candidates encounter numerous preparation roadmaps, courses, videos, problem lists, and recommendations.
+- Roadmaps.
+- Courses.
+- Videos.
+- Problem lists.
+- Interview guides.
+- AI recommendations.
+- Preparation strategies.
 
-They may struggle to determine which path is appropriate for their specific target role, experience level, and current skill level.
+They may continuously switch between resources because each new roadmap appears useful.
 
-### 3.2 Unclear Skill Readiness
+This can create fragmented preparation rather than a focused progression.
 
-Completing a certain number of coding questions or watching educational content does not necessarily demonstrate interview readiness.
+---
+
+## 3.2 Unclear Skill Readiness
+
+Completing preparation activities does not necessarily demonstrate interview readiness.
 
 For example:
 
-> A candidate may have solved 30 Array problems but still struggle to independently solve an unseen medium-level Array problem within an interview time constraint.
+> A candidate may have solved 50 Array problems but still struggle to independently solve an unfamiliar medium-level Array problem under interview conditions.
 
-The platform therefore needs to evaluate actual demonstrated performance, rather than relying only on activity counts.
+The system therefore needs to distinguish between:
 
-### 3.3 Lack of Objective Progress Tracking
+- Exposure.
+- Practice.
+- Demonstrated competence.
+- Interview readiness.
 
-Candidates may feel that they are improving but may not have a structured way to measure:
+---
 
-- Accuracy.
-- Difficulty progression.
-- Problem-solving speed.
+## 3.3 Lack of Objective Progress Tracking
+
+Candidates may feel that they are improving but lack structured evidence showing:
+
 - Topic-level performance.
+- Difficulty progression.
+- Accuracy.
+- Problem-solving speed.
 - Repeated mistakes.
+- Assessment performance.
 - Interview performance.
 - Improvement over time.
 
-### 3.4 Unclear Preparation Priorities
+---
 
-Candidates often know that they need to prepare DSA, System Design, CS Fundamentals, Behavioral skills, and other areas.
+## 3.4 Unclear Preparation Priorities
 
-However, they may not know:
+Candidates often know they need to study:
 
-> Which area should I prioritize right now?
+- DSA.
+- CS Fundamentals.
+- System Design.
+- Behavioral skills.
+- Coding.
+- Communication.
 
-The answer should depend on the candidate's target role and evidence from their performance.
+However, they may not know which area should receive priority today.
 
-### 3.5 Disconnected Job and Candidate Information
+CareerGraph AI should identify the highest-impact next action based on the candidate's target and available performance evidence.
+
+---
+
+## 3.5 Disconnected Candidate and Job Information
 
 A candidate's:
 
 - Resume.
-- Current experience.
+- Experience.
 - Skills.
-- Target job description.
+- Target role.
+- Target level.
+- Job description.
 - Coding performance.
-- Learning activity.
-- Mock interview results.
+- Mock interview performance.
 
-...are usually evaluated separately.
+are usually evaluated separately.
 
-CareerGraph AI aims to connect these sources into a unified candidate profile.
+CareerGraph AI aims to connect these signals into a unified candidate intelligence profile.
 
-### 3.6 Lack of Realistic Interview Simulation
+---
 
-Many preparation tools focus primarily on individual questions.
+## 3.6 Lack of Realistic Interview Simulation
 
-A real Software Engineering interview, however, can involve multiple evaluation dimensions, including:
+Interview preparation often focuses on isolated questions.
+
+Real Software Engineering interviews may evaluate multiple dimensions, including:
 
 - Coding.
 - Problem solving.
@@ -169,50 +199,51 @@ A real Software Engineering interview, however, can involve multiple evaluation 
 - Computer Science Fundamentals.
 - Behavioral communication.
 - Ownership.
-- Leadership and technical decision-making for senior levels.
+- Technical decision-making.
+- Leadership for senior levels.
 
-Candidates need the ability to practice these dimensions together in a realistic interview environment.
+Candidates need a way to practice these dimensions and receive structured feedback.
 
 ---
 
-## 4. Product Vision
+# 4. Product Vision
 
-**Vision:**
+## Vision
 
-To build an intelligent career-readiness system that transforms fragmented interview preparation into a measurable, personalized, and continuously adaptive process.
+> **Build an intelligent career-readiness system that transforms fragmented interview preparation into a measurable, personalized, and continuously adaptive process.**
 
 CareerGraph AI aims to move candidates from:
 
-> "I have studied a lot, but I don't know whether I am ready."
+> **"I have studied a lot, but I don't know whether I am ready."**
 
 to:
 
-> "I understand where I stand, what I need to improve, what I should do next, and whether my performance is improving."
+> **"I understand where I stand, what I need to improve, what I should do next, and whether my performance is improving."**
 
 ---
 
-## 5. Product Goal
+# 5. Product Goal
 
-The goal of CareerGraph AI is to help Software Engineering candidates systematically improve their interview readiness and increase their probability of interview success.
-
-The platform will **not** claim to guarantee that a candidate will clear an interview.
-
-Instead, it will provide:
+The goal of CareerGraph AI is to help Software Engineering candidates systematically improve their interview readiness through:
 
 - Evidence-based skill assessment.
 - Personalized gap analysis.
 - Prioritized preparation.
-- Adaptive learning recommendations.
+- Adaptive recommendations.
 - Realistic interview simulation.
-- Continuous performance evaluation.
+- Structured evaluation.
 - Progress tracking.
-- Interview-readiness insights.
+- Continuous feedback.
+
+CareerGraph AI will **not** claim to guarantee that a candidate will clear an interview or receive a job offer.
+
+Instead, it will provide evidence-based insights into the candidate's current preparation state and areas for improvement.
 
 ---
 
-## 6. Target Users
+# 6. Target Users
 
-### 6.1 Primary Users
+## 6.1 Primary Users
 
 Software Engineering candidates preparing for:
 
@@ -222,35 +253,50 @@ Software Engineering candidates preparing for:
 - Software Engineer.
 - Senior Software Engineer roles.
 
-The candidate selects a target role and experience level, allowing the platform to adapt its expectations and assessment criteria.
+The candidate selects a target role and level so that expectations can be adapted accordingly.
 
-### 6.2 Secondary Users — Future Scope
+---
 
-The underlying framework could eventually support other technical and professional careers where suitable assessment data and role-specific evaluation criteria are available.
+## 6.2 Initial MVP Focus
 
-Examples could include:
+The MVP will primarily demonstrate the Software Engineering interview journey.
+
+The system will support role-level adaptation across:
+
+- SDE-1.
+- SDE-2.
+- SDE-3.
+
+The depth of evaluation will vary according to the target level.
+
+---
+
+## 6.3 Future Users
+
+The architecture may eventually be extended to other technical career paths, such as:
 
 - Data Science.
 - Machine Learning Engineering.
 - Data Analytics.
-- Product Management.
-- Cybersecurity.
 - Cloud Engineering.
+- Cybersecurity.
 
-These are future expansion areas, **not** part of the initial MVP.
+These are future expansion areas and are not part of the initial MVP.
 
 ---
 
-## 7. Target Role Adaptation
+# 7. Target Role Adaptation
 
-The platform should not treat every Software Engineering candidate identically.
+CareerGraph AI should not evaluate every Software Engineering candidate using identical expectations.
 
-The expected skill profile should vary based on:
+The target profile should vary based on:
 
 - Role.
 - Level.
-- Target Company.
-- Target Job Description.
+- Target company where applicable.
+- Job description.
+
+A conceptual capability model is:
 
 | Capability | SDE-1 | SDE-2 | SDE-3 |
 |---|---|---|---|
@@ -266,51 +312,64 @@ These expectations should eventually be represented as configurable role profile
 
 ---
 
-## 8. Proposed Solution
+# 8. Proposed Solution
 
-CareerGraph AI will create a unified candidate intelligence layer connecting:
+CareerGraph AI will create a unified career intelligence layer connecting candidate data, target requirements, preparation activity, and demonstrated performance.
 
-```
+The high-level flow is:
+
+```text
 Candidate Profile
-       +
+        +
 Resume
-       +
+        +
 Target Role
-       +
+        +
 Job Description
-       +
-Skill Profile
-       +
-Learning Activity
-       +
-Coding Performance
-       +
-Mock Interview Performance
-       ↓
+        +
+Preparation Data
+        +
+Assessment Data
+        +
+Interview Data
+        |
+        v
 Career Intelligence Engine
-       ↓
+        |
+        v
+Current Skill Profile
+        |
+        v
 Skill Gap Analysis
-       ↓
+        |
+        v
 Priority Identification
-       ↓
-Personalized Preparation
-       ↓
-Interview Simulation
-       ↓
-Performance Evaluation
-       ↓
-Updated Candidate Profile
-```
-
-This creates a continuous feedback loop.
-
----
+        |
+        v
+Personalized Action
+        |
+        v
+Practice / Interview
+        |
+        v
+Evidence-Based Evaluation
+        |
+        v
+Updated Skill Profile
+        |
+        v
+Next Best Action
+        |
+        +----------------------+
+                               |
+                               v
+                         Continuous Loop
 
 ## 9. Core Product Capabilities
 
 ### 9.1 Candidate Profile Intelligence
 
-The platform should maintain a structured profile containing information such as:
+The platform should maintain a structured candidate profile containing:
 
 - Education.
 - Experience.
@@ -322,172 +381,238 @@ The platform should maintain a structured profile containing information such as
 - Target company.
 - Preparation history.
 - Assessment history.
+- Interview history.
 
 ### 9.2 Resume Intelligence
 
 The candidate can provide a resume.
 
-The system extracts relevant information such as:
+The system should extract relevant information such as:
 
 - Technical skills.
 - Programming languages.
+- Frameworks.
 - Experience.
 - Projects.
-- Domain experience.
-- Cloud technologies.
+- Technologies.
+- Cloud skills.
 - Relevant achievements.
 
-The system can then compare the candidate profile against a target role.
+The extracted information should contribute to the candidate's structured profile.
 
 ### 9.3 Job Description Intelligence
 
-The candidate can provide a job description.
+The candidate can provide a target job description.
 
-The system identifies:
+The system should identify:
 
 - Required skills.
 - Preferred skills.
 - Experience requirements.
 - Technical requirements.
-- Role responsibilities.
-- Interview-relevant competencies.
+- Responsibilities.
+- Role expectations.
+- Relevant competencies.
 
-The requirements are converted into a structured target profile.
+These requirements should be converted into a structured target profile.
 
 ### 9.4 Skill Gap Analysis
 
-The system compares **Current Candidate State** against **Target Role State** to identify gaps.
+The system should compare **Current Candidate State** against **Target Role State** to identify:
+
+- Strengths.
+- Skill gaps.
+- High-priority gaps.
+- Medium-priority gaps.
+- Lower-priority gaps.
 
 Example:
 
-| Capability | Current Score |
-|---|---|
-| DSA | 78 / 100 |
-| System Design | 54 / 100 |
-| CS Fundamentals | 71 / 100 |
-| Coding | 82 / 100 |
-| Behavioral | 76 / 100 |
-| **Target-role Fit** | **68 / 100** |
+| Capability | Current Score | Target | Gap |
+|---|---|---|---|
+| DSA | 72 | 85 | 13 |
+| CS Fundamentals | 64 | 80 | 16 |
+| System Design | 48 | 70 | 22 |
+| Behavioral | 76 | 80 | 4 |
+| Coding | 81 | 85 | 4 |
 
-The system should explain **why** a score or assessment was generated instead of presenting unexplained AI-generated numbers.
+The score itself should **not** be presented as an unexplained AI-generated number.
 
-### 9.5 Personalized Preparation Roadmap
+Every important assessment should have supporting evidence.
 
-Instead of providing a generic roadmap, the platform should generate a roadmap based on:
+---
+
+## 10. Evidence-Based Evaluation
+
+This is a core technical and product requirement.
+
+CareerGraph AI should **not** rely on a simple:
+
+```
+Candidate Answer
+   ↓
+Gemini
+   ↓
+68/100
+```
+
+Instead, evaluation should follow:
+
+```
+Candidate Response
+   ↓
+Structured Evidence Extraction
+   ↓
+Evaluation Rubric
+   ↓
+Dimension-Level Scores
+   ↓
+Supporting Evidence
+   ↓
+Weighted Overall Score
+   ↓
+Skill Profile Update
+```
+
+For example:
+
+| Evaluation Dimension | Score | Weight |
+|---|---|---|
+| Requirement Understanding | 8/10 | 10% |
+| Architecture | 14/20 | 20% |
+| Scalability | 11/20 | 20% |
+| Database Design | 9/15 | 15% |
+| Reliability | 8/15 | 15% |
+| Trade-offs | 7/10 | 10% |
+| Communication | 8/10 | 10% |
+
+The system should also provide evidence.
+
+Example:
+
+> Candidate identified load balancing and caching but did not address database replication or cache invalidation.
+
+This makes the evaluation more transparent and defensible.
+
+---
+
+## 11. Personalized Preparation Engine
+
+CareerGraph AI should not provide a generic roadmap to every candidate.
+
+Recommendations should be based on:
 
 - Target role.
 - Target level.
-- Candidate skill gaps.
-- Previous performance.
+- Current skill profile.
+- Skill gaps.
+- Previous assessment performance.
+- Interview performance.
 - Available preparation time.
-- Historical learning activity.
-- Interview timeline.
+- Preparation history.
 
 Example:
 
-| Day | Focus |
-|---|---|
-| Day 1 | Scalability fundamentals |
-| Day 2 | Caching |
-| Day 3 | Database design |
-| Day 4 | Load balancing |
-| Day 5 | Design exercise |
-| Day 6 | Mock system-design interview |
-| Day 7 | Reassessment |
+> **Current highest-priority gap:**
+> System Design - Scalability
+>
+> **Recommended next action:**
+> Study horizontal scaling and load balancing.
+>
+> **Reason:**
+> Recent system-design evaluation showed weaknesses in scalability and architecture decisions.
+>
+> **Next:**
+> Complete a short design exercise and reassess.
 
-The roadmap should change as new performance data becomes available.
+The system should prioritize a small number of high-impact actions rather than overwhelming the candidate with dozens of recommendations.
 
-### 9.6 Coding Assessment
+---
 
-The platform should support coding and problem-solving assessment.
+## 12. Adaptive Feedback Loop
 
-It should capture metrics such as:
-
-- Problem category.
-- Difficulty.
-- Attempt duration.
-- Successful or unsuccessful result.
-- Hints used.
-- Number of attempts.
-- Solution quality where measurable.
-- Repeated error patterns.
-
-The objective is to distinguish:
-
-> "I have seen this topic."
-
-from:
-
-> "I can independently solve an unseen interview problem."
-
-### 9.7 Full AI Mock Interview
-
-This should be one of the **flagship features**.
-
-Instead of providing only isolated questions, CareerGraph AI should simulate a representative Software Engineering interview.
-
-**Interview Flow:**
+The core product loop is:
 
 ```
-Interview Setup
-        ↓
-Coding Round
-        ↓
-System Design Round
-        ↓
-Behavioral Round
-        ↓
-Evaluation
-        ↓
-Interview Report
-        ↓
-Updated Readiness Profile
+TARGET → ASSESS → IDENTIFY GAPS → PRIORITIZE → PREPARE
+   → PRACTICE → SIMULATE → EVALUATE → UPDATE PROFILE
+   → RECOMMEND NEXT ACTION → REPEAT
 ```
 
-The exact interview structure can vary according to target level.
+This feedback loop is the central differentiator of CareerGraph AI.
 
-#### Coding Round
+The platform should continuously learn from new candidate evidence rather than generating a static roadmap once.
 
-The candidate receives one or more coding problems.
+---
 
-The system evaluates:
+## 13. AI Mock Interview
+
+The mock interview is a major capability but will be implemented with controlled scope.
+
+The MVP will demonstrate three interview dimensions:
+
+- Coding.
+- Behavioral.
+- System Design.
+
+However, each module will have a different implementation depth.
+
+| Interview Module | MVP Depth | Purpose |
+|---|---|---|
+| Coding | Deep | Primary interview simulation and evaluation |
+| Behavioral | Moderate | Demonstrate structured behavioral assessment |
+| System Design | Representative | Demonstrate system-design evaluation concept |
+
+This approach allows CareerGraph AI to represent the broader interview journey without attempting to build a complete interview platform in every dimension.
+
+---
+
+## 14. Coding Interview
+
+Coding will be the deepest interview module in the MVP.
+
+The system should evaluate:
 
 - Problem understanding.
-- Approach.
+- Approach selection.
+- Problem-solving process.
 - Correctness.
-- Complexity.
-- Coding quality.
+- Time complexity.
+- Space complexity.
+- Code quality.
 - Communication.
 - Time management.
 
-#### System Design Round
+The system should distinguish between:
 
-The candidate receives a design scenario.
+> "The candidate has studied this topic."
 
-Example:
+and:
 
-> Design a scalable notification system.
+> "The candidate can independently solve an unfamiliar interview problem."
 
-The evaluation can consider:
+Possible evidence includes:
 
-- Requirement clarification.
-- Architecture.
-- APIs.
-- Data storage.
-- Scalability.
-- Availability.
-- Reliability.
-- Caching.
-- Trade-offs.
-- Failure handling.
+- Problem difficulty.
+- Topic.
+- Time taken.
+- Hints used.
+- Attempts.
+- Correctness.
+- Explanation quality.
+- Complexity analysis.
 
-#### Behavioral Round
+---
 
-The candidate answers behavioral questions such as:
+## 15. Behavioral Interview
 
-> "Tell me about a time when you handled a production incident."
+The MVP will support a representative behavioral interview.
 
-The system can evaluate against a defined rubric including:
+The candidate may answer questions such as:
+
+> "Tell me about a time when you handled a difficult production incident."
+
+Evaluation dimensions may include:
 
 - Structure.
 - Clarity.
@@ -498,23 +623,47 @@ The system can evaluate against a defined rubric including:
 - Relevance.
 - STAR-style completeness where appropriate.
 
-#### Senior-Level Evaluation
+The goal is **not** to determine whether a candidate is a "good person" or make subjective personality judgments.
 
-For SDE-2 and SDE-3 simulations, the platform can additionally assess:
-
-- Ownership.
-- Technical decision-making.
-- Architecture.
-- Mentoring.
-- Conflict resolution.
-- Leadership.
-- Cross-team collaboration.
+The system should evaluate the response against a defined interview rubric.
 
 ---
 
-## 10. Interview Evaluation Report
+## 16. System Design Interview
 
-After a mock interview, the platform should generate a structured report.
+The MVP will support a representative system-design interview rather than a large library of design scenarios.
+
+Example:
+
+> Design a scalable notification system.
+
+The system may evaluate:
+
+- Requirement clarification.
+- Architecture.
+- APIs.
+- Data storage.
+- Scalability.
+- Availability.
+- Reliability.
+- Caching.
+- Failure handling.
+- Trade-offs.
+- Communication.
+
+The evaluation should provide both scores and evidence.
+
+Example:
+
+> Candidate identified load balancing and caching but did not discuss database replication or failure recovery.
+
+---
+
+## 17. Unified Interview Evaluation
+
+After the interview modules, CareerGraph AI should generate a consolidated report.
+
+Example:
 
 | Evaluation Area | Score |
 |---|---|
@@ -523,150 +672,232 @@ After a mock interview, the platform should generate a structured report.
 | Behavioral | 81 |
 | Communication | 84 |
 | Problem Solving | 76 |
-| **Overall Readiness** | **74** |
+| **Overall Interview Readiness** | **74** |
 
-**Highest Priority Gaps**
+The report should include:
 
-- System Design scalability.
-- Dynamic Programming.
-- Quantifying behavioral impact.
-
-The system should then update the candidate's readiness profile and recommendations.
+- Strengths.
+- Weaknesses.
+- Evidence.
+- High-priority gaps.
+- Recommended next actions.
+- Areas requiring reassessment.
 
 ---
 
-## 11. Career Readiness Intelligence
+## 18. Career Readiness Intelligence
 
-CareerGraph AI should provide a readiness view based on measurable signals.
+CareerGraph AI should maintain a continuously updated readiness profile.
+
+Example:
+
+**Career Target:** Software Engineer - SDE-1
+
+**Current Readiness**
+
+| Area | Score |
+|---|---|
+| Coding | 78 |
+| DSA | 74 |
+| CS Fundamentals | 65 |
+| System Design | 52 |
+| Behavioral | 79 |
+| Communication | 84 |
+
+The system should also identify:
+
+- Strong areas.
+- Weak areas.
+- Highest-impact gaps.
+- Recent improvement.
+- Areas with insufficient evidence.
 
 The readiness assessment should be:
 
 - Explainable.
-- Based on defined metrics.
 - Role-specific.
+- Evidence-based.
 - Continuously updated.
-- Accompanied by confidence and limitations where appropriate.
+- Accompanied by limitations where appropriate.
 
-The platform should **not** claim:
+CareerGraph AI should **not** claim:
 
 > "You have a 92% probability of getting hired."
 
 Instead, it should communicate:
 
-> "Based on your available performance data, these are your current strengths, weaknesses, and highest-priority areas for improvement."
+> "Based on the evidence currently available, these are your strengths, weaknesses, and highest-priority preparation areas."
 
 ---
 
-## 12. Adaptive Feedback Loop
+## 19. Multi-Agent Architecture
 
-The core intelligence loop is:
+The MVP will use a focused multi-agent architecture.
 
-```
-TARGET
-  ↓
-ASSESS
-  ↓
-IDENTIFY GAPS
-  ↓
-PRIORITIZE
-  ↓
-PREPARE
-  ↓
-PRACTICE
-  ↓
-SIMULATE INTERVIEW
-  ↓
-EVALUATE
-  ↓
-UPDATE PROFILE
-  ↓
-RECOMMEND NEXT ACTION
-  ↺
-```
+Instead of creating a separate agent for every feature, agents will represent meaningful autonomous responsibilities.
 
-This continuous loop is the central differentiator of the platform.
+The MVP will use **four primary agents**.
 
----
+### 19.1 Orchestrator Agent
 
-## 13. Multi-Agent AI Requirements
+Responsibilities:
 
-The system is expected to use a multi-agent architecture where individual agents have specialized responsibilities.
+- Understand the current workflow.
+- Determine which agent should act.
+- Maintain workflow context.
+- Coordinate multi-step tasks.
+- Handle agent failures and retries where appropriate.
 
-Potential agents include:
+### 19.2 Profile and Requirement Agent
 
-- **Career / Coordinator Agent**
-  - Orchestrates the overall workflow.
-  - Determines which specialized agent should handle each task.
-- **Resume Intelligence Agent**
-  - Extracts and structures candidate information.
-  - Identifies skills, experience, projects, and technologies.
-- **Job Intelligence Agent**
-  - Analyzes job descriptions.
-  - Extracts target-role requirements.
-- **Skill Assessment Agent**
-  - Evaluates candidate capabilities based on available evidence.
-- **Skill Gap Agent**
-  - Identifies and prioritizes candidate gaps.
-- **Learning / Recommendation Agent**
-  - Generates adaptive preparation plans.
-- **Interviewer Agent**
-  - Conducts the mock interview.
-  - Maintains interview context.
-- **Evaluation Agent**
-  - Evaluates candidate responses against predefined rubrics.
-- **Career Intelligence Agent**
-  - Synthesizes information into readiness insights and recommendations.
+Responsibilities:
 
-The final agent architecture will be defined during the TRD phase.
+- Process resumes.
+- Extract candidate information.
+- Process job descriptions.
+- Extract target-role requirements.
+- Structure candidate and target profiles.
+
+### 19.3 Interviewer Agent
+
+Responsibilities:
+
+- Conduct coding interviews.
+- Conduct behavioral interviews.
+- Conduct system-design interviews.
+- Maintain interview context.
+- Ask appropriate follow-up questions.
+- Adapt questioning based on the candidate's response where appropriate.
+
+### 19.4 Evaluation and Recommendation Agent
+
+Responsibilities:
+
+- Evaluate candidate responses against predefined rubrics.
+- Extract evidence.
+- Generate dimension-level scores.
+- Identify skill gaps.
+- Update readiness insights.
+- Recommend the next best action.
 
 ---
 
-## 14. Data Requirements
+## 20. Agentic Design Principle
+
+Agents should only be used where autonomous reasoning and context management provide meaningful value.
+
+Deterministic application logic should handle tasks such as:
+
+- Authentication.
+- Data validation.
+- Database writes.
+- Score calculation.
+- Access control.
+- API routing.
+- Configuration.
+- Workflow state management.
+
+This prevents unnecessary agent complexity and improves reliability and cost control.
+
+---
+
+## 21. Data Requirements
 
 The platform should be data-driven.
 
-### 14.1 Candidate-Generated Data
+### 21.1 Candidate Data
 
 Potential candidate data includes:
 
-- Resume.
+- Profile information.
+- Education.
+- Experience.
 - Skills.
+- Projects.
+- Technologies.
+- Resume.
 - Target role.
 - Target level.
 - Target company.
-- Job descriptions.
-- Coding attempts.
-- Assessment results.
-- Mock interview responses.
-- Learning activity.
+- Preparation history.
+- Assessment history.
+- Interview history.
 
-### 14.2 Public Data
+### 21.2 Job Data
 
-Where appropriate, the system may use:
+Potential job-related data includes:
 
-- Public job datasets.
-- Public technology and skills datasets.
-- Public salary or employment datasets where relevant.
-- Publicly available interview-related datasets where licensing permits.
+- Job description.
+- Required skills.
+- Preferred skills.
+- Experience requirements.
+- Responsibilities.
+- Role level.
+- Technical competencies.
 
-### 14.3 Synthetic Data
+### 21.3 Performance Data
 
-Synthetic candidate profiles and performance histories may be used to demonstrate analytics and recommendation capabilities without exposing private candidate information.
+The system may capture:
 
-### 14.4 Privacy Requirement
+- Assessment scores.
+- Topic-level scores.
+- Difficulty.
+- Time taken.
+- Attempts.
+- Hints.
+- Interview scores.
+- Evaluation dimensions.
+- Repeated mistakes.
+- Skill progression.
 
-> No confidential employer data, internal company information, proprietary interview material, or sensitive work-related data should be used.
+### 21.4 Synthetic and Public Data
+
+The project may use:
+
+- Synthetic candidate profiles.
+- Synthetic assessment histories.
+- Public datasets.
+- Public job-related datasets where licensing permits.
+
+No confidential employer data or proprietary work-related information should be used.
 
 ---
 
-## 15. Analytics Requirements
+## 22. Data-Driven Career Graph
 
-The system should track trends such as:
+The underlying candidate model can be represented conceptually as:
+
+```
+Candidate
+  ├── Skills
+  ├── Experience
+  ├── Projects
+  ├── Target Role
+  ├── Target Level
+  ├── Target Job
+  ├── Assessments
+  ├── Interview Results
+  ├── Preparation Activity
+  ├── Skill Gaps
+  ├── Recommendations
+  └── Progress History
+```
+
+This interconnected structure is the foundation of the "CareerGraph" concept.
+
+---
+
+## 23. Analytics Requirements
+
+The platform should track meaningful trends rather than only activity counts.
+
+Potential metrics include:
 
 - Skill progression.
 - Topic-level performance.
 - Coding accuracy.
 - Difficulty progression.
+- Problem-solving time.
 - Interview performance.
 - Preparation consistency.
 - Repeated weaknesses.
@@ -682,40 +913,45 @@ Example:
 | Week 3 | 64 |
 | Week 4 | 73 |
 
-The objective is to show evidence of improvement, not merely activity.
+The objective is to show evidence of improvement.
 
 ---
 
-## 16. Dashboard Requirements
+## 24. Dashboard Requirements
 
-The dashboard should provide a consolidated view containing:
+The dashboard should provide a consolidated view.
 
-### 16.1 Career Target
+### 24.1 Career Target
 
-- Software Engineer.
-- SDE-2.
-- Target Company: Optional.
+- Target role.
+- Target level.
+- Target company.
+- Target job description.
 
-### 16.2 Readiness Overview
+### 24.2 Readiness Overview
 
 - Overall readiness.
 - Skill distribution.
 - Progress trend.
-- Confidence level.
+- Confidence / evidence coverage.
 
-### 16.3 Skill Gaps
+### 24.3 Skill Gaps
 
 - High-priority gaps.
 - Medium-priority gaps.
-- Low-priority gaps.
+- Lower-priority gaps.
 
-### 16.4 Current Recommendations
+### 24.4 Preparation Recommendation
+
+The system should display the most important next action.
 
 Example:
 
-> Focus on System Design before increasing coding difficulty.
+> **Next Best Action:** Practice Graph BFS/DFS
+>
+> **Reason:** Recent assessments show repeated difficulty with graph traversal while other DSA topics are currently above the target threshold.
 
-### 16.5 Interview History
+### 24.5 Interview History
 
 | Mock Interview | Score |
 |---|---|
@@ -723,201 +959,308 @@ Example:
 | #2 | 68 |
 | #3 | 74 |
 
-### 16.6 Next Best Action
+### 24.6 Progress Trend
 
-The platform should surface a **single prioritized next action** instead of overwhelming the user with too many recommendations.
-
----
-
-## 17. Functional Requirements
-
-The MVP should support:
-
-1. User can create a candidate profile.
-2. User can define a target Software Engineering role and level.
-3. User can provide a resume.
-4. System can analyze the resume.
-5. User can provide a job description.
-6. System can extract target-role requirements.
-7. System can identify candidate skill gaps.
-8. System can generate a prioritized preparation plan.
-9. System can conduct coding assessments.
-10. System can conduct a system-design interview simulation.
-11. System can conduct a behavioral interview simulation.
-12. System can evaluate interview performance against defined rubrics.
-13. System can generate an interview report.
-14. System can maintain historical performance data.
-15. System can update recommendations based on new performance data.
-16. System can display progress and readiness insights through a dashboard.
+The dashboard should visualize meaningful improvement over time.
 
 ---
 
-## 18. Non-Functional Requirements
+## 25. MVP Scope
 
-### 18.1 Performance
+The MVP will focus on demonstrating the complete intelligence loop rather than implementing every possible feature at production scale.
 
-The system should provide reasonable response times for interactive AI workflows.
+### 25.1 MVP Must Work Well
 
-### 18.2 Scalability
+The following capabilities are core:
 
-The architecture should support increasing numbers of candidates and interview sessions.
+- Candidate profile creation.
+- Resume analysis.
+- Target role definition.
+- Job description analysis.
+- Skill profile generation.
+- Skill gap analysis.
+- Evidence-based evaluation.
+- Personalized next-best-action recommendation.
+- Coding interview.
+- Behavioral interview.
+- Representative system-design interview.
+- Unified interview evaluation.
+- Readiness dashboard.
+- Progress tracking.
+- Adaptive feedback loop.
 
-### 18.3 Security
+### 25.2 MVP Depth
 
-The system should protect:
-
-- Candidate resumes.
-- Personal information.
-- Interview responses.
-- API credentials.
-- Application data.
-
-### 18.4 Privacy
-
-Candidate data should not be unnecessarily exposed to other users.
-
-### 18.5 Explainability
-
-Important assessments and recommendations should provide understandable reasoning.
-
-### 18.6 Reliability
-
-Failures in individual AI workflows should be handled gracefully.
-
-### 18.7 Observability
-
-Important application and agent workflows should be logged for debugging and monitoring without unnecessarily logging sensitive information.
-
----
-
-## 19. MVP Scope
-
-Because the Patchamomma build window is limited, the MVP will focus on demonstrating the complete intelligence loop rather than implementing every possible feature.
-
-The MVP will include:
-
-Candidate Profile
-       ↓
-Resume Analysis
-       ↓
-Target Role / Job Description Analysis
-       ↓
-Skill Gap Analysis
-       ↓
-Personalized Roadmap
-       ↓
-Representative Full Mock Interview
-       ↓
-Coding
-       +
-System Design
-       +
-Behavioral
-       ↓
-AI Evaluation
-       ↓
-Readiness Dashboard
-       ↓
-Adaptive Recommendation
-
-This provides an end-to-end demonstrable product.
+| Capability | MVP Depth |
+|---|---|
+| Candidate Profile | Full |
+| Resume Intelligence | Full |
+| Job Description Intelligence | Full |
+| Skill Gap Analysis | Full |
+| Personalized Recommendation | Full |
+| Coding Interview | Deep |
+| Behavioral Interview | Moderate |
+| System Design | Representative |
+| Unified Evaluation | Full |
+| Readiness Dashboard | Full |
+| Adaptive Feedback Loop | Full |
+| Multi-Agent Architecture | Focused |
 
 ---
 
-## 20. Out of Scope for MVP
+## 26. MVP User Journey
 
-The following should **not** become priorities during the initial build:
+The primary demonstration flow should be:
+
+1. Candidate creates profile
+2. Candidate selects target role and level
+3. Candidate uploads resume
+4. Candidate provides target job description
+5. System creates target profile
+6. System identifies skill gaps
+7. System recommends the highest-priority action
+8. Candidate completes interview assessment
+9. System evaluates performance using a rubric
+10. Candidate profile is updated
+11. System identifies the next best action
+12. Dashboard shows measurable progress
+
+This end-to-end loop is the primary MVP demonstration.
+
+---
+
+## 27. Out of Scope for MVP
+
+The following will **not** be primary MVP priorities:
 
 - Large-scale job marketplace.
 - Direct job application automation.
 - Recruiter marketplace.
 - Guaranteed interview or job outcomes.
-- Fully automated hiring decisions.
-- Large-scale social network.
+- Automated hiring decisions.
+- Large social networking functionality.
 - Support for dozens of career domains.
-- Real-time integration with every coding platform.
+- Integration with every coding platform.
 - Perfect replication of any company's proprietary interview process.
-- Complete enterprise recruitment workflows.
+- Large-scale enterprise recruitment workflows.
+- Extensive interview-question libraries.
+- Fully autonomous career decision-making.
 
 These may be considered in future versions.
 
 ---
 
-## 21. Success Metrics
+## 28. Cost and Resource Management
+
+Cost efficiency is a technical requirement.
+
+The platform should avoid using expensive AI inference unnecessarily.
+
+Potential strategies include:
+
+- Use efficient models for extraction and classification.
+- Reserve stronger models for complex reasoning and evaluation.
+- Cache reusable candidate information.
+- Avoid repeatedly sending identical context.
+- Limit interview duration and unnecessary agent calls.
+- Store structured results for reuse.
+- Monitor AI usage.
+- Track cost per workflow.
+- Apply cloud budget alerts.
+- Apply appropriate service limits.
+
+The goal is to demonstrate that the architecture is technically feasible within the Patchamomma Build Phase resources.
+
+---
+
+## 29. Security and Privacy Requirements
+
+The platform may process sensitive candidate information.
+
+It should protect:
+
+- Resume data.
+- Personal information.
+- Interview responses.
+- Candidate performance data.
+- Authentication information.
+- API credentials.
+
+Security requirements include:
+
+- Secure authentication.
+- Access control.
+- Protected storage.
+- Secure API communication.
+- Secret management.
+- Appropriate logging.
+- Avoidance of unnecessary sensitive data collection.
+
+No confidential employer data should be used in the project.
+
+---
+
+## 30. Explainability Requirements
+
+Important AI-generated assessments should provide understandable reasoning.
+
+For example, instead of:
+
+> System Design: 62/100
+
+The platform should provide:
+
+> **System Design: 62/100**
+>
+> **Strengths:**
+> - Identified major service boundaries.
+> - Considered caching.
+>
+> **Gaps:**
+> - Limited discussion of database replication.
+> - No clear failure-recovery strategy.
+> - Scalability trade-offs were not fully explained.
+
+This allows the candidate to understand what to improve.
+
+---
+
+## 31. Functional Requirements
+
+The MVP should support:
+
+1. User can create a candidate profile.
+2. User can define a target Software Engineering role.
+3. User can define a target level.
+4. User can optionally provide a target company.
+5. User can provide a resume.
+6. System can extract structured candidate information.
+7. User can provide a job description.
+8. System can extract target-role requirements.
+9. System can compare candidate and target profiles.
+10. System can identify skill gaps.
+11. System can prioritize skill gaps.
+12. System can recommend the next best preparation action.
+13. System can conduct a coding interview.
+14. System can conduct a behavioral interview.
+15. System can conduct a representative system-design interview.
+16. System can evaluate interview responses using predefined rubrics.
+17. System can provide evidence supporting evaluation results.
+18. System can generate an interview report.
+19. System can update candidate readiness information.
+20. System can maintain historical performance data.
+21. System can display readiness and progress through a dashboard.
+22. System can generate a new recommendation after assessment.
+
+---
+
+## 32. Non-Functional Requirements
+
+### 32.1 Performance
+
+The application should provide reasonable response times for interactive user workflows.
+
+### 32.2 Scalability
+
+The architecture should be capable of supporting additional users and interview sessions without requiring a fundamental redesign.
+
+### 32.3 Reliability
+
+The system should gracefully handle:
+
+- AI failures.
+- API failures.
+- Invalid input.
+- Agent timeouts.
+- Temporary service failures.
+
+### 32.4 Explainability
+
+Important assessments and recommendations should be supported by evidence.
+
+### 32.5 Observability
+
+Important application and agent workflows should be monitored.
+
+Logs should avoid unnecessary exposure of sensitive candidate information.
+
+### 32.6 Maintainability
+
+The architecture should separate:
+
+- UI.
+- Backend.
+- AI agents.
+- Evaluation logic.
+- Data storage.
+- Analytics.
+
+This should allow individual components to be improved independently.
+
+---
+
+## 33. Success Metrics
 
 The project should define measurable success criteria.
 
-### 21.1 Product Metrics
+### 33.1 Product Metrics
 
-- Percentage of core workflows successfully completed.
-- Successful end-to-end interview simulation.
+- Successful completion of the end-to-end candidate workflow.
+- Successful completion of mock interview workflow.
 - Recommendation generation success rate.
-- Dashboard completion.
+- Dashboard availability.
+- Successful readiness-profile update.
 
-### 21.2 AI Metrics
+### 33.2 AI Metrics
 
 - Structured output validity.
 - Evaluation consistency against predefined rubrics.
 - Recommendation relevance.
 - Agent workflow completion rate.
+- Evidence extraction quality.
 
-### 21.3 Candidate Metrics
+### 33.3 Candidate Metrics
+
+Potential outcome metrics include:
 
 - Improvement between repeated assessments.
-- Reduction in identified high-priority skill gaps.
+- Reduction in high-priority skill gaps.
 - Improvement in mock interview performance.
+- Improvement in topic-level performance.
 
-### 21.4 Technical Metrics
+### 33.4 Technical Metrics
+
+Potential metrics include:
 
 - API reliability.
 - Agent execution success rate.
 - Response latency.
-- Cost per candidate.
+- Cost per workflow.
 - Cost per interview simulation.
-
-The final measurable metrics and evaluation methodology will be defined during the TRD and evaluation phase.
+- Failure rate.
 
 ---
 
-## 22. Risks and Mitigations
+## 34. Risks and Mitigations
 
 | Risk | Mitigation |
 |---|---|
-| AI produces unreliable evaluations | Use predefined evaluation rubrics and structured outputs |
-| Readiness score becomes arbitrary | Define transparent scoring methodology |
-| Excessive project scope | Maintain strict MVP boundaries |
-| AI recommendations become generic | Ground recommendations in candidate performance data |
-| Hallucinated job requirements | Use structured job-description extraction and validation |
-| Sensitive candidate data exposure | Apply access control and secure storage |
-| High cloud/API costs | Monitor usage and apply budget controls |
-| Over-reliance on LLM judgment | Combine deterministic metrics with AI evaluation |
-| Mock interview does not represent real interviews | Clearly define simulation scope and evaluation rubric |
+| MVP becomes too large | Maintain strict MVP depth and scope |
+| AI produces unreliable evaluations | Use predefined rubrics and structured evaluation |
+| Readiness scores become arbitrary | Use transparent weighted scoring |
+| Recommendations become generic | Ground recommendations in candidate performance data |
+| Job requirements are incorrectly extracted | Validate structured extraction |
+| Excessive agent complexity | Use four meaningful agents |
+| High AI costs | Use model routing, caching, limits, and monitoring |
+| Candidate data exposure | Use authentication, access control, secure storage, and secret management |
+| Mock interview feels unrealistic | Use structured interview flows and defined evaluation rubrics |
+| Dashboard becomes only a visualization layer | Make dashboard outputs directly connected to recommendation and readiness logic |
+| Product becomes another AI interview bot | Keep the continuous career-readiness feedback loop as the core product |
+| Insufficient evidence for a score | Display confidence/evidence coverage and avoid overclaiming |
 
 ---
 
-## 23. Future Scope
-
-After establishing the Software Engineering platform, CareerGraph AI could evolve into a broader career intelligence platform.
-
-Potential future capabilities include:
-
-- Additional technical career paths.
-- Personalized job matching.
-- Continuous job-market intelligence.
-- Skill-demand forecasting.
-- Career transition recommendations.
-- Learning-resource optimization.
-- Recruiter-facing insights.
-- Long-term career planning.
-- Integration with learning and coding platforms.
-
-The underlying principle would remain:
-
-> Understand current state → understand target state → identify gaps → recommend action → measure outcome → adapt.
-
----
-
-## 24. Product Differentiation
+## 35. Product Differentiation
 
 CareerGraph AI is **not** intended to be simply another:
 
@@ -927,53 +1270,84 @@ CareerGraph AI is **not** intended to be simply another:
 - AI chatbot.
 - Mock interview tool.
 
-Its differentiation is the connection between these activities.
+The key differentiation is the connection between these activities.
 
-The platform combines:
+Conceptually:
 
 ```
-Career Goal
-     +
+Job Description
+      +
 Candidate Profile
-     +
-Job Requirements
-     +
-Learning Data
-     +
+      +
+Preparation Data
+      +
 Coding Performance
-     +
+      +
 Interview Performance
-     ↓
+      |
+      v
 Career Intelligence
-     ↓
-Personalized Action
-     ↓
-Continuous Measurement
+      |
+      v
+Skill Gap
+      |
+      v
+Next Best Action
+      |
+      v
+Practice
+      |
+      v
+Reassessment
+      |
+      v
+Updated Career Profile
 ```
 
-The central product philosophy is:
-
-> Don't just prepare. Measure whether your preparation is moving you toward interview readiness.
+The product is therefore positioned as an **adaptive career-readiness intelligence layer**, rather than a single-purpose preparation tool.
 
 ---
 
-## 25. Product Success Vision
+## 36. Competitive Positioning
 
-A successful CareerGraph AI session should allow a candidate to answer:
+CareerGraph AI should not attempt to compete solely by claiming to have:
 
-| Stage | Question |
-|---|---|
-| Before Preparation | Where am I? |
-| During Preparation | What should I work on next and why? |
-| After Practice | Did I actually improve? |
-| Before an Interview | What are my remaining weaknesses? |
-| After a Mock Interview | What would I need to improve before attempting the real interview? |
+- More coding questions.
+- More mock interviews.
+- More learning resources.
+- More AI features.
 
-This transforms interview preparation from a largely subjective process into a data-driven, continuously adaptive preparation cycle.
+Instead, its differentiation should be:
+
+> Existing preparation tools can generate activity and individual results. CareerGraph AI connects those signals into a continuous readiness loop.
+
+The platform can complement existing resources rather than attempting to replace every preparation tool.
 
 ---
 
-## 26. Long-Term Vision
+## 37. Future Scope
+
+Potential future capabilities include:
+
+- Integration with coding platforms.
+- Learning-platform integrations.
+- More advanced System Design interviews.
+- More extensive Behavioral interview simulations.
+- Company-specific preparation profiles using public information.
+- Personalized job matching.
+- Career transition recommendations.
+- Skill-demand forecasting.
+- Long-term career planning.
+- Additional technical career paths.
+- Advanced analytics.
+- Recruiter-facing functionality.
+- Learning-resource optimization.
+
+These capabilities are outside the initial MVP.
+
+---
+
+## 38. Long-Term Vision
 
 CareerGraph AI aims to become an **AI Career Intelligence Layer** that understands the relationship between:
 
@@ -981,35 +1355,82 @@ CareerGraph AI aims to become an **AI Career Intelligence Layer** that understan
 Person → Skills → Goals → Opportunities → Preparation → Performance → Outcomes
 ```
 
-The initial implementation focuses on Software Engineering interviews, but the architecture is intended to support expansion into additional career domains over time.
+The initial implementation focuses on Software Engineering interview preparation.
+
+Over time, the same underlying intelligence framework could support additional career paths.
 
 ---
 
-## 27. Initial MVP Technology Direction
+## 39. Initial Technology Direction
 
 The project will prioritize **Google and Google Cloud technologies** as required by the Patchamomma Build Phase.
 
 Potential technologies include:
 
-- Google Gemini / Gemini API.
+- Google Gemini.
 - Google AI Studio.
+- Google ADK (Agent Development Kit).
 - Google Cloud Run.
+- Firebase / Firestore.
 - Google Cloud Storage.
 - BigQuery.
-- Firebase / Firestore.
-- Google ADK (Agent Development Kit).
-- MCP Toolbox for Databases where appropriate.
-- Looker Studio / Looker for analytics and reporting.
-- Pub/Sub where asynchronous workflows require it.
-- Google Cloud monitoring and security services where appropriate.
+- Looker Studio / Looker.
+- Pub/Sub where asynchronous processing is required.
+- MCP Toolbox for Databases where it provides meaningful value.
+- Google Cloud security and observability services where appropriate.
 
-Technology selection will be finalized during the Technical Requirements Document (TRD) based on actual architectural requirements.
+Technology selection will be finalized during the Technical Requirements Document (TRD).
 
-> The project should avoid using a Google Cloud service merely for the sake of including it. Each selected technology should have a clear role in the architecture.
+A technology should only be included when it has a clear architectural purpose.
 
 ---
 
-## 28. Key Product Principle
+## 40. Technology Selection Principle
+
+CareerGraph AI should demonstrate thoughtful use of Google Cloud rather than technology accumulation.
+
+For example:
+
+| Requirement | Potential Technology | Purpose |
+|---|---|---|
+| Generative AI | Gemini | Reasoning, extraction, evaluation |
+| Multi-Agent AI | Google ADK | Agent orchestration |
+| Backend | Cloud Run | Serverless application backend |
+| Candidate Data | Firestore | Structured application data |
+| Document Storage | Cloud Storage | Resume and document storage |
+| Analytics | BigQuery | Historical and analytical data |
+| Reporting | Looker Studio | Visual analytics |
+| Authentication | Firebase Authentication | User identity and access |
+| Async Processing | Pub/Sub | Event-driven workflows |
+| Database Agent Access | MCP Toolbox | Controlled database interaction |
+| Monitoring | Google Cloud tools | Observability and reliability |
+
+The final architecture will use only the services required by the actual system design.
+
+---
+
+## 41. MVP Definition of Done
+
+The MVP should be considered successful when a user can complete the following end-to-end journey:
+
+1. Create a candidate profile.
+2. Select a target Software Engineering role and level.
+3. Provide a resume.
+4. Provide a target job description.
+5. Receive a structured candidate and target profile.
+6. Receive evidence-based skill-gap analysis.
+7. Receive a prioritized next-best action.
+8. Complete a representative interview workflow.
+9. Receive rubric-based evaluation with supporting evidence.
+10. See an updated readiness profile.
+11. Receive a new recommended action.
+12. View progress through a dashboard.
+
+The final demonstration should clearly show that the recommendation changes based on newly generated candidate evidence.
+
+---
+
+## 42. Core Product Principle
 
 CareerGraph AI should not simply answer:
 
@@ -1020,3 +1441,9 @@ It should continuously answer:
 > "Based on my target role and actual performance, what should I do next, why should I do it, and how will we know whether it worked?"
 
 This principle forms the foundation of the product.
+
+---
+
+## 43. Final Product Statement
+
+CareerGraph AI is a data-driven, multi-agent career-readiness platform that connects a candidate's goals, skills, preparation activity, assessments, and interview performance to continuously identify skill gaps, recommend the highest-impact next action, and measure whether the candidate is actually progressing toward Software Engineering interview readiness.
