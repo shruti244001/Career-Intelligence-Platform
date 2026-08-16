@@ -2376,9 +2376,24 @@ A Preparation Action represents an activity recommended to improve a specific co
 
 An Assessment represents a structured measurement of candidate performance.
 
-Potential fields: `assessment_id`, `candidate_id`, `target_profile_id`, `assessment_type`, `status`, `score`, `started_at`, `completed_at`
-
-Assessment types may include: Coding, System Design, Behavioral, CS Fundamentals.
+Potential fields: 
+```text
+assessment_id
+candidate_id
+target_profile_id
+assessment_type
+status
+score
+started_at
+completed_at
+```
+Assessment types may include:
+```text
+Coding
+System Design
+Behavioral
+CS Fundamentals
+```
 
 > The MVP may prioritize selected assessment types based on implementation scope.
 
@@ -2404,7 +2419,17 @@ The interview should maintain its relationship with: Questions, Candidate respon
 
 Each interview question should be stored as a separate entity.
 
-Potential fields: `question_id`, `interview_id`, `competency_id`, `question_type`, `difficulty`, `question_text`, `sequence_number`, `created_at`
+Potential fields:
+```text
+question_id
+interview_id
+competency_id
+question_type
+difficulty
+question_text
+sequence_number
+created_at
+```
 
 > Questions may be generated dynamically by the Interviewer Agent. The system should retain sufficient information to reproduce or audit the interview evaluation where appropriate.
 
@@ -2412,9 +2437,24 @@ Potential fields: `question_id`, `interview_id`, `competency_id`, `question_type
 
 An Interview Response stores the candidate's response to a question.
 
-Potential fields: `response_id`, `interview_id`, `question_id`, `candidate_id`, `response_text`, `submitted_at`
+Potential fields:
+```text
+response_id
+interview_id
+question_id
+candidate_id
+response_text
+submitted_at
 
-For coding interviews, additional structured fields may include: `code_submission`, `language`, `execution_result`, `complexity_explanation`.
+```
+
+For coding interviews, additional structured fields may include:
+```text
+code_submission
+language
+execution_result
+complexity_explanation
+```
 
 > Raw candidate responses should remain distinguishable from AI-generated analysis.
 
@@ -2444,7 +2484,12 @@ Evaluation
 └── Code Quality
 ```
 
-Each dimension should contain: Score, Maximum score, Evidence, Strength, Improvement area.
+Each dimension should contain: 
+- Score
+- Maximum score
+- Evidence
+- Strength
+- Improvement area
 
 ### 9.21 Recommendation
 
@@ -2502,7 +2547,13 @@ Agent Execution records the participation of an individual agent within a workfl
 }
 ```
 
-Where appropriate, the system may record: Input references, Output references, Model used, Execution duration, Token usage, Error information.
+Where appropriate, the system may record: 
+- Input references
+- Output references
+- Model used
+- Execution duration
+- Token usage
+- Error information
 
 > Raw prompts and model outputs should not be stored unnecessarily if they contain sensitive candidate information.
 
