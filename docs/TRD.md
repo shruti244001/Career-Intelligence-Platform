@@ -338,3 +338,85 @@ Not every listed technology is required to be used in the MVP.
 Each technology will be included only when it provides a clear technical benefit.
 
 The final technology selection will be documented before implementation.
+
+# 6. Multi-Agent Architecture
+
+CareerGraph AI will use a focused multi-agent architecture built with Google ADK (Agent Development Kit).
+
+The architecture will use a small number of specialized agents with clearly defined responsibilities rather than creating separate agents for every individual feature.
+
+The primary objective is to ensure that each agent has a clear purpose, limited responsibility, and access only to the context and tools required for its task.
+
+---
+
+## 6.1 Agent Architecture
+
+The initial MVP will consist of four core agent components:
+
+```text
+                         +----------------------+
+                         |   Orchestrator Agent |
+                         +----------+-----------+
+                                    |
+              +---------------------+---------------------+
+              |                     |                     |
+              v                     v                     v
+   +-------------------+   +-------------------+   +-----------------------+
+   | Profile &         |   | Interviewer       |   | Evaluation &          |
+   | Requirement Agent |   | Agent             |   | Recommendation Agent  |
+   +-------------------+   +-------------------+   +-----------------------+
+              |                     |                     |
+              +---------------------+---------------------+
+                                    |
+                                    v
+                              Gemini Models
+                                    |
+                    +---------------+---------------+
+                    |                               |
+                    v                               v
+               Firestore                       BigQuery
+```
+The four core components are:
+
+- Orchestrator Agent
+- Profile & Requirement Agent
+- Interviewer Agent
+- Evaluation & Recommendation Agent
+
+## 6.2 Orchestrator Agent
+
+The Orchestrator Agent is responsible for coordinating the overall agent workflow.
+
+### Responsibilities
+
+- Understand the user's current task or workflow state.
+- Determine which specialized agent should handle the request.
+- Provide relevant context to the selected agent.
+- Coordinate sequential or conditional agent execution.
+- Maintain workflow state.
+- Handle transitions between profile analysis, interview, evaluation, and recommendation workflows.
+- Return structured results to the application layer.
+
+### Example
+```text
+User uploads Resume
+|
+v
+Orchestrator Agent
+|
+v
+Profile & Requirement Agent
+|
+v
+Candidate Profile
+```
+After an interview:
+```text
+Interview Completed
+        |
+        v
+Orchestrator Agent
+        |
+        v
+Evaluation & Recommendation Agent
+```
