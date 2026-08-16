@@ -295,6 +295,12 @@ The target profile should vary based on:
 - Level.
 - Target company where applicable.
 - Job description.
+  
+The target profile is determined using the following hierarchy:
+
+**Target Role + Target Level + Optional Target Company + Optional Job Description**
+
+The role and level define the baseline competency expectations. When a target company and/or job description is provided, the system uses that information to further tailor the target profile, skill-gap analysis, interview focus areas, and preparation recommendations.
 
 A conceptual capability model is:
 
