@@ -303,3 +303,38 @@ The initial technical architecture is:
                     |  Dashboard  |
                     +-------------+
 ```
+This architecture is a working baseline.
+
+The final architecture will be refined after defining:
+
+- Agent workflows
+- Data model
+- Evaluation framework
+- API contracts
+- Security requirements
+- Deployment requirements
+
+## 5. Google Cloud Technology Stack
+
+CareerGraph AI will prioritize Google and Google Cloud technologies.
+
+The following stack is the initial technical direction.
+
+| Requirement | Technology | Primary Purpose |
+|---|---|---|
+| Generative AI | Gemini | Extraction, reasoning, interview interaction and evaluation |
+| Agentic AI | Google ADK | Agent orchestration and agent workflows |
+| Application Backend | Cloud Run | Serverless backend deployment |
+| Candidate/Application Data | Firestore | Transactional application data |
+| Document Storage | Cloud Storage | Resume and document storage |
+| Analytics | BigQuery | Historical and analytical data |
+| Reporting | Looker Studio / Looker | Analytics and dashboards |
+| Authentication | Firebase Authentication | User authentication |
+| Event Processing | Pub/Sub | Asynchronous workflows where required |
+| Database Agent Access | MCP Toolbox | Controlled database access for agents where justified |
+
+Not every listed technology is required to be used in the MVP.
+
+Each technology will be included only when it provides a clear technical benefit.
+
+The final technology selection will be documented before implementation.
