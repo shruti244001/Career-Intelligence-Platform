@@ -603,7 +603,7 @@ Orchestrator
 Interviewer Agent
 ```
 A structured candidate profile may contain:
-
+```text
 Candidate Profile
 ├── Skills
 ├── Experience
@@ -613,7 +613,7 @@ Candidate Profile
 ├── Target Role
 ├── Target Level
 └── Evidence
-
+```
 Structured outputs will improve:
 
 - Reliability
