@@ -252,7 +252,7 @@ The system should retain historical performance so that it can display:
 
 The initial technical architecture is:
 ```text
-                                             USER
+                         USER
                            |
                            v
                     +--------------+
