@@ -420,3 +420,257 @@ Orchestrator Agent
         v
 Evaluation & Recommendation Agent
 ```
+### Constraints
+
+The Orchestrator Agent should not independently perform specialized analysis when an appropriate specialized agent is available.
+
+Its primary responsibility is coordination rather than becoming a general-purpose agent that performs every task.
+
+## 6.3 Profile & Requirement Agent
+
+The Profile & Requirement Agent is responsible for converting unstructured candidate and job information into structured representations.
+
+### Responsibilities
+
+**Candidate-side processing**
+
+- Analyze uploaded resumes.
+- Extract education information.
+- Extract professional experience.
+- Extract technical skills.
+- Extract projects.
+- Extract technologies.
+- Identify evidence supporting claimed skills.
+- Build a structured candidate profile.
+
+**Job-side processing**
+
+- Analyze job descriptions.
+- Extract required skills.
+- Extract preferred skills.
+- Identify role expectations.
+- Identify experience requirements.
+- Identify relevant technical competencies.
+- Build a structured target-role profile.
+
+### Comparison
+
+The agent can compare:
+```text
+Candidate Profile
+        +
+Target Role Profile
+        |
+        v
+Potential Skill Gaps
+```
+### Constraints
+
+The agent should distinguish between:
+
+- Explicit evidence
+- Inferred information
+- Missing information
+
+The system should avoid treating unsupported assumptions as confirmed candidate skills.
+
+## 6.4 Interviewer Agent
+
+The Interviewer Agent is responsible for conducting interactive interview sessions.
+
+The MVP will support representative interview experiences across:
+
+- Coding
+- Behavioral
+- System Design
+
+### Responsibilities
+
+- Start an interview session.
+- Select or generate appropriate questions.
+- Maintain interview context.
+- Ask follow-up questions when required.
+- Adapt difficulty based on the interview flow.
+- Collect candidate responses.
+- Maintain session state.
+- End the interview according to the defined session rules.
+- Pass completed interview information to the evaluation workflow.
+
+### Example
+```text
+Candidate starts Coding Interview
+        |
+        v
+Interviewer Agent
+        |
+        v
+Question 1
+        |
+        v
+Candidate Response
+        |
+        v
+Follow-up / Question 2
+        |
+        v
+Interview Completed
+```
+### Constraints
+
+The Interviewer Agent should focus on conducting the interview.
+
+It should not independently determine the final candidate readiness score.
+
+Evaluation should be handled by the Evaluation & Recommendation Agent using the defined evaluation framework.
+
+## 6.5 Evaluation & Recommendation Agent
+
+The Evaluation & Recommendation Agent is responsible for converting interview and assessment evidence into structured evaluation and actionable recommendations.
+
+### Responsibilities
+
+- Analyze candidate responses.
+- Extract relevant evidence.
+- Apply predefined evaluation rubrics.
+- Evaluate individual competency dimensions.
+- Generate structured scores.
+- Identify strengths.
+- Identify weaknesses.
+- Update the candidate's skill profile.
+- Identify priority skill gaps.
+- Generate the next best preparation action.
+
+### Evaluation Flow
+
+```text
+Candidate Response
+        |
+        v
+Evidence Extraction
+        |
+        v
+Evaluation Rubric
+        |
+        v
+Dimension-level Evaluation
+        |
+        v
+Structured Score
+        |
+        v
+Skill Profile Update
+        |
+        v
+Next Best Action
+```
+### Constraints
+
+The agent should not produce unsupported numerical scores.
+
+Scores should be associated with:
+
+- Evaluation dimensions
+- Evidence
+- Rubric criteria
+- Relevant candidate response
+
+The detailed scoring methodology will be defined in the Evaluation Framework section of this TRD.
+
+## 6.6 Agent Responsibility Matrix
+
+| Agent | Primary Responsibility | Input | Output |
+|---|---|---|---|
+| Orchestrator Agent | Workflow coordination | User request, workflow state | Agent task / workflow result |
+| Profile & Requirement Agent | Candidate and job understanding | Resume, job description, profile data | Structured profiles and requirements |
+| Interviewer Agent | Conduct interview | Candidate profile, target role, interview type | Questions, responses, interview session |
+| Evaluation & Recommendation Agent | Evaluate performance and recommend next actions | Interview responses, assessment data, rubrics | Evaluation, skill updates, recommendations |
+
+## 6.7 Agent Communication
+
+Agents should communicate through structured data rather than relying on free-form textual handoffs wherever practical.
+
+Example:
+```text
+Profile & Requirement Agent
+            |
+            v
+Structured Candidate Profile
+            |
+            v
+Orchestrator
+            |
+            v
+Interviewer Agent
+```
+A structured candidate profile may contain:
+
+Candidate Profile
+├── Skills
+├── Experience
+├── Education
+├── Projects
+├── Technologies
+├── Target Role
+├── Target Level
+└── Evidence
+
+Structured outputs will improve:
+
+- Reliability
+- Validation
+- Debugging
+- Observability
+- Data persistence
+- Agent interoperability
+
+## 6.8 Agent Boundaries
+
+The system will maintain clear boundaries between agent responsibilities.
+
+| Responsibility | Owner |
+|---|---|
+| Workflow coordination | Orchestrator Agent |
+| Resume understanding | Profile & Requirement Agent |
+| Job description understanding | Profile & Requirement Agent |
+| Candidate/job comparison | Profile & Requirement Agent |
+| Interview interaction | Interviewer Agent |
+| Evidence extraction from responses | Evaluation & Recommendation Agent |
+| Rubric-based evaluation | Evaluation & Recommendation Agent |
+| Skill profile updates | Evaluation & Recommendation Agent |
+| Next-best-action recommendation | Evaluation & Recommendation Agent |
+| Data persistence | Application / Database Layer |
+| Authentication | Application / Identity Layer |
+| Deterministic business rules | Application Layer |
+
+Agents should not directly perform responsibilities that belong to the application or infrastructure layer unless explicitly required by the architecture.
+
+## 6.9 Agent Design Principles
+
+The multi-agent architecture will follow these principles:
+
+1. **Specialization** — Each agent should have a clearly defined purpose.
+2. **Minimalism** — New agents should be introduced only when there is a meaningful separation of responsibility.
+3. **Structured Communication** — Agents should exchange structured information whenever possible.
+4. **Evidence-Based Reasoning** — Important evaluations and recommendations should be grounded in available candidate evidence.
+5. **Deterministic Logic Outside Agents** — Simple calculations, validation, database operations, authentication, and other deterministic operations should remain in the application layer where practical.
+6. **Controlled Tool Access** — Agents should receive access only to the tools and data required for their responsibilities.
+7. **Observability** — Agent executions should be traceable for debugging, evaluation, and system monitoring.
+8. **Cost Awareness** — Agent workflows should minimize unnecessary model calls and excessive context.
+9. **Failure Isolation** — Failure of one agent should not unnecessarily bring down the entire application workflow.
+10. **Extensibility** — The architecture should allow additional specialized agents to be introduced in future versions without requiring a complete redesign.
+
+## 6.10 Future Agent Extensions
+
+Additional specialized agents may be introduced after MVP validation.
+
+Potential future agents include:
+
+- Learning & Resource Agent
+- Career Intelligence Agent
+- Resume Optimization Agent
+- Job Discovery Agent
+- Analytics Agent
+
+These agents are intentionally outside the initial MVP architecture unless a clear technical requirement emerges during implementation.
+
+The MVP will prioritize depth and reliability of the four core agents over the number of agents.
