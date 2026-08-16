@@ -1262,3 +1262,744 @@ Future agents may include:
 These agents will only be introduced when a clear product or technical requirement justifies their inclusion.
 
 The MVP will prioritize reliability and depth of the four core agents over increasing the number of agents.
+
+# 8. Agent Workflows
+
+CareerGraph AI will use coordinated agent workflows to transform candidate information into personalized preparation actions and continuously update the candidate's preparation profile based on new evidence.
+
+The core workflow is designed as a continuous feedback loop:
+
+```text
+Candidate Profile
+        +
+Target Profile
+        |
+        v
+Skill Gap Analysis
+        |
+        v
+Next Best Action
+        |
+        v
+Preparation / Interview
+        |
+        v
+Performance Evidence
+        |
+        v
+Evaluation
+        |
+        v
+Skill Profile Update
+        |
+        +--------------------+
+        |                    |
+        v                    |
+Updated Skill Gaps           |
+        |                    |
+        v                    |
+Next Best Action <-----------+
+```
+The MVP will implement three primary workflows:
+
+1. Target Profile and Skill Gap Workflow
+2. Personalized Next Best Action Workflow
+3. Interview, Evaluation and Skill Update Workflow
+
+## 8.1 Workflow 1 — Target Profile and Skill Gap Analysis
+
+### Objective
+
+Convert the candidate's background and target career requirements into a structured target profile and identify the most important skill gaps.
+
+### Inputs
+
+The workflow may use:
+
+- Candidate profile
+- Resume
+- Target role
+- Target level
+- Target company, if provided
+- Target job description, if provided
+- Existing candidate skill evidence
+- Previous assessment history, if available
+
+### Workflow
+```text
+Candidate
+    |
+    v
+Resume / Profile
+    |
+    v
+Orchestrator Agent
+    |
+    v
+Profile & Requirement Agent
+    |
+    +----------------------+
+    |                      |
+    v                      v
+Candidate Profile     Target Requirements
+                           |
+                           v
+                    Target Profile
+                           |
+                           v
+                    Skill Gap Analysis
+                           |
+                           v
+                    Structured Gap Result
+```
+### Step 1 — Candidate Profile Processing
+
+The Profile & Requirement Agent analyzes available candidate information.
+
+The system may extract:
+
+- Education
+- Experience
+- Skills
+- Projects
+- Technologies
+- Existing evidence of competency
+
+The extracted information should be represented in a structured format.
+
+### Step 2 — Target Requirement Processing
+
+The Profile & Requirement Agent analyzes the target requirements.
+
+The baseline target is determined using:
+```text
+Target Role
++
+Target Level
+```
+Optional information can further refine the target:
+```text
+Target Company
++
+Target Job Description
+```
+The resulting target profile should contain relevant competency expectations.
+
+### Step 3 — Candidate vs. Target Comparison
+
+The system compares the candidate profile against the target profile.
+
+Example:
+
+| Target Competency | Candidate Evidence |
+|---|---|
+| Data Structures | Moderate |
+| Algorithms | Moderate |
+| Graphs | Weak |
+| Dynamic Programming | Weak |
+| OOP | Strong |
+| System Design | Beginner |
+| Behavioral | Insufficient Evidence |
+
+### Step 4 — Skill Gap Identification
+
+The system identifies gaps based on available evidence.
+
+Each gap should contain:
+
+- Skill / competency
+- Current evidence
+- Target expectation
+- Gap status
+- Confidence
+- Priority
+
+Example:
+
+```json
+{
+  "skill": "Graphs",
+  "current_level": "weak",
+  "target_level": "high",
+  "gap_status": "needs_improvement",
+  "priority": "high",
+  "confidence": 0.86
+}
+```
+
+The confidence value represents confidence in the available evidence and should not be interpreted as hiring probability.
+
+### Step 5 — Persist Result
+
+The structured target profile and skill-gap result should be stored for future workflows.
+
+The result can subsequently be used by:
+
+- Recommendation workflows
+- Interview workflows
+- Evaluation workflows
+- Progress tracking
+- Dashboard analytics
+
+## 8.2 Workflow 2 — Personalized Next Best Action
+
+### Objective
+
+Determine what the candidate should do next based on the current target profile, skill gaps, and available performance evidence.
+
+The system should not simply generate a static roadmap.
+
+Instead, it should prioritize the next action dynamically.
+
+### Inputs
+
+The workflow may use:
+
+- Target profile
+- Current skill gaps
+- Skill priorities
+- Recent assessments
+- Interview performance
+- Preparation history
+- Previous recommendations
+- Target role
+- Target level
+
+### Workflow
+```text
+Current Candidate State
+        |
+        v
+Orchestrator Agent
+        |
+        v
+Evaluation & Recommendation Agent
+        |
+        +-------------------+
+        |                   |
+        v                   v
+Skill Gaps             Recent Evidence
+        |                   |
+        +---------+---------+
+                  |
+                  v
+          Priority Analysis
+                  |
+                  v
+          Next Best Action
+                  |
+                  v
+             Candidate
+```
+### Step 1 — Collect Current State
+
+The system retrieves the candidate's latest available evidence.
+
+This may include:
+
+- Current skill levels
+- Recent assessment results
+- Interview results
+- Previously completed actions
+- Outstanding skill gaps
+
+### Step 2 — Prioritize Gaps
+
+The system determines which competency should receive attention first.
+
+Potential prioritization factors include:
+
+- Severity of skill gap
+- Importance to target role
+- Importance to target level
+- Evidence from recent assessments
+- Recency of performance
+- Previous unsuccessful attempts
+- Candidate preparation history
+
+The prioritization logic should be explainable.
+
+### Step 3 — Generate Next Best Action
+
+The Evaluation & Recommendation Agent generates an actionable recommendation.
+
+Examples:
+
+> **High Priority:** Practice medium-level graph traversal problems.
+>
+> **Reason:** Recent coding performance indicates difficulty with BFS/DFS while graph competency is important for the selected target profile.
+
+or:
+
+> **High Priority:** Complete a behavioral interview session focused on ownership.
+>
+> **Reason:** The candidate has insufficient evidence for the ownership competency required by the selected target profile.
+
+The recommendation should be specific enough for the candidate to act on.
+
+### Step 4 — Store Recommendation
+
+The recommendation should be stored as part of the candidate's preparation history.
+
+The system should track:
+
+- Recommended action
+- Reason
+- Priority
+- Related competency
+- Creation timestamp
+- Completion status
+- Result, when available
+
+## 8.3 Workflow 3 — Interview, Evaluation and Skill Update
+
+### Objective
+
+Conduct an interview, evaluate the candidate using predefined rubrics, update the candidate's competency evidence, and generate the next best action.
+
+This workflow creates the primary feedback loop of CareerGraph AI.
+
+### Inputs
+
+The workflow may use:
+
+- Candidate profile
+- Target profile
+- Target role
+- Target level
+- Interview type
+- Interview configuration
+- Evaluation rubric
+- Previous relevant performance
+
+### Workflow
+```text
+Candidate
+    |
+    v
+Start Interview
+    |
+    v
+Orchestrator Agent
+    |
+    v
+Interviewer Agent
+    |
+    v
+Questions / Follow-ups
+    |
+    v
+Candidate Responses
+    |
+    v
+Interview Completed
+    |
+    v
+Evaluation & Recommendation Agent
+    |
+    +-----------------------+
+    |                       |
+    v                       v
+Evidence Extraction      Rubric
+    |                       |
+    +-----------+-----------+
+                |
+                v
+        Competency Evaluation
+                |
+                v
+         Skill Profile Update
+                |
+                v
+         Updated Skill Gaps
+                |
+                v
+        Next Best Action
+```
+## 8.4 Interview Initialization
+
+The Orchestrator Agent receives the interview request.
+
+Example:
+```text
+Interview Type:
+Coding
+
+Target Role:
+Software Engineer
+
+Target Level:
+SDE-1
+
+Target Company:
+Optional
+
+Job Description:
+Optional
+```
+The Orchestrator retrieves the relevant target context and invokes the Interviewer Agent.
+
+## 8.5 Interview Execution
+
+The Interviewer Agent conducts the interview.
+
+The interview may contain:
+
+- Initial question
+- Candidate response
+- Follow-up question
+- Additional candidate response
+- Difficulty adjustment where appropriate
+- Interview completion
+
+The agent maintains the session state throughout the interview.
+
+Example:
+```text
+Question
+   |
+   v
+Candidate Response
+   |
+   v
+Interviewer Analysis
+   |
+   +----> Follow-up required
+   |             |
+   |             v
+   |        Follow-up Question
+   |
+   +----> Continue
+                 |
+                 v
+           Next Question
+```
+The Interviewer Agent should focus on conducting the interview rather than assigning the final evaluation.
+
+## 8.6 Interview Evidence Collection
+
+After the interview, the system should retain structured evidence.
+
+Potential evidence includes:
+
+- Questions presented
+- Candidate responses
+- Follow-up questions
+- Time-related information where available
+- Candidate approach
+- Candidate explanation
+- Final solution or response
+- Interview type
+- Target competency
+
+The raw candidate response and derived evaluation should remain distinguishable.
+
+## 8.7 Rubric-Based Evaluation
+
+The completed interview is passed to the Evaluation & Recommendation Agent.
+
+The evaluation should be based on predefined competency dimensions.
+
+Example for a coding interview:
+```text
+Coding Interview
+├── Problem Understanding
+├── Problem Solving
+├── Algorithm Selection
+├── Correctness
+├── Complexity Analysis
+├── Communication
+└── Code Quality
+```
+Example for a behavioral interview:
+```text
+Behavioral Interview
+├── Communication
+├── Ownership
+├── Collaboration
+├── Conflict Handling
+├── Decision Making
+└── Impact
+```
+Example for a system design interview:
+```text
+System Design Interview
+├── Requirement Understanding
+├── Architecture
+├── Scalability
+├── Reliability
+├── Data Design
+├── Trade-offs
+└── Communication
+```
+The exact rubric dimensions may vary according to the selected interview type and target level.
+
+## 8.8 Evidence-Based Scoring
+
+Evaluation should follow:
+```text
+Candidate Response
+        |
+        v
+Relevant Evidence
+        |
+        v
+Rubric Criteria
+        |
+        v
+Dimension Evaluation
+        |
+        v
+Structured Score
+```
+The system should avoid producing unexplained scores.
+
+Each evaluation dimension should, where possible, contain:
+
+- Score
+- Maximum score
+- Evidence
+- Strength
+- Improvement area
+
+Example:
+
+```json
+{
+  "dimension": "Problem Solving",
+  "score": 3,
+  "max_score": 5,
+  "evidence": [
+    "Identified a valid approach",
+    "Required assistance to optimize the solution"
+  ],
+  "improvement_area": "Practice identifying optimal approaches independently"
+}
+```
+
+## 8.9 Skill Profile Update
+
+After evaluation, the system determines whether the new evidence should modify the candidate's competency profile.
+
+Example:
+```text
+Before Interview
+
+Graphs
+Current Evidence: Weak
+
+
+        ↓
+
+
+Interview Performance
+
+Candidate struggled with BFS traversal
+
+
+        ↓
+
+
+After Evaluation
+
+Graphs
+Status: Needs Improvement
+Priority: High
+Evidence Count: Updated
+```
+The system should preserve historical assessment information rather than overwriting previous evidence without traceability.
+
+## 8.10 Next Best Action After Interview
+
+The updated skill profile is passed into the recommendation workflow.
+
+Example:
+```text
+Interview Result
+      |
+      v
+Graph competency identified as weak
+      |
+      v
+Target role requires strong problem solving
+      |
+      v
+Priority increases
+      |
+      v
+Recommendation:
+Practice BFS/DFS problems
+      |
+      v
+Candidate completes action
+      |
+      v
+Future assessment
+```
+This creates a continuous preparation loop rather than treating each mock interview as an isolated event.
+
+## 8.11 End-to-End CareerGraph Loop
+
+The three workflows combine into the core product loop:
+```text
+             ┌───────────────────────┐
+             │   Candidate Profile   │
+             └───────────┬───────────┘
+                         |
+                         v
+             ┌───────────────────────┐
+             │    Target Profile     │
+             │                       │
+             │ Role + Level          │
+             │ + Company (optional)  │
+             │ + JD (optional)       │
+             └───────────┬───────────┘
+                         |
+                         v
+             ┌───────────────────────┐
+             │    Skill Gap          │
+             │      Analysis         │
+             └───────────┬───────────┘
+                         |
+                         v
+             ┌───────────────────────┐
+             │   Next Best Action    │
+             └───────────┬───────────┘
+                         |
+                         v
+             ┌───────────────────────┐
+             │ Preparation /         │
+             │ Mock Interview        │
+             └───────────┬───────────┘
+                         |
+                         v
+             ┌───────────────────────┐
+             │ Performance Evidence │
+             └───────────┬───────────┘
+                         |
+                         v
+             ┌───────────────────────┐
+             │ Rubric-Based         │
+             │ Evaluation            │
+             └───────────┬───────────┘
+                         |
+                         v
+             ┌───────────────────────┐
+             │ Skill Profile Update  │
+             └───────────┬───────────┘
+                         |
+                         v
+             ┌───────────────────────┐
+             │ Updated Skill Gaps    │
+             └───────────┬───────────┘
+                         |
+                         └───────────────> Next Best Action
+```
+## 8.12 Workflow State
+
+Each workflow should maintain a defined state.
+
+Example:
+```text
+Workflow State
+
+CREATED
+   ↓
+IN_PROGRESS
+   ↓
+WAITING_FOR_USER
+   ↓
+PROCESSING
+   ↓
+COMPLETED
+```
+Error states may include:
+
+- `FAILED`
+- `CANCELLED`
+- `RETRYING`
+
+The exact state machine may be refined during implementation.
+
+## 8.13 Workflow Persistence
+
+Important workflow state should be persisted so that a candidate can resume an incomplete workflow.
+
+Potential persisted information includes:
+
+- Workflow ID
+- Candidate ID
+- Workflow type
+- Current state
+- Target profile reference
+- Agent execution references
+- Interview session reference
+- Evaluation reference
+- Recommendation reference
+- Timestamps
+- Error status where applicable
+
+The system should avoid storing unnecessary duplicate copies of large model responses.
+
+## 8.14 Workflow Error Handling
+
+If an agent fails during a workflow, the system should:
+
+- Record the failure.
+- Identify whether the operation is safely retryable.
+- Retry within a controlled limit where appropriate.
+- Preserve the existing workflow state.
+- Avoid duplicating persisted records.
+- Notify the user when the workflow cannot continue.
+- Allow the workflow to resume where technically feasible.
+
+Example:
+```text
+Interviewer Agent
+       |
+       X
+   API Failure
+       |
+       v
+Retry
+       |
+       +----> Success → Continue
+       |
+       +----> Failure → Preserve State → Notify User
+```
+## 8.15 Workflow Design Principles
+
+The workflows should follow these principles:
+
+1. Each workflow should have a clearly defined objective.
+2. Agent responsibilities should remain separated.
+3. Structured data should be used for agent handoffs.
+4. Important evaluation decisions should be evidence-based.
+5. Candidate history should be preserved.
+6. The system should avoid unnecessary model calls.
+7. Deterministic operations should remain outside agents where practical.
+8. Workflows should be observable and traceable.
+9. Failed workflows should be recoverable where possible.
+10. The architecture should support future expansion without requiring a complete redesign.
+
+## 8.16 MVP Workflow Boundaries
+
+The MVP will prioritize the following complete workflow:
+```text
+Target Profile
+      ↓
+Skill Gap
+      ↓
+Next Best Action
+      ↓
+Interview
+      ↓
+Evaluation
+      ↓
+Skill Update
+      ↓
+Next Best Action
+```
+The MVP should prioritize making this loop functional and reliable rather than implementing a large number of independent workflows.
+
+Additional workflows and specialized agents may be introduced after the core loop is validated.
