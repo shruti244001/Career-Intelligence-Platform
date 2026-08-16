@@ -2209,3 +2209,492 @@ SDE-1                       SDE-2                     SDE-3
 ```
 
 > These are reference expectations and should not be treated as universal hiring criteria for every company.
+### 9.8 Company
+
+Company information is optional. A candidate may prepare using **Role + Level** alone, or **Role + Level + Company**.
+
+```json
+{
+  "company_id": "company_001",
+  "name": "Example Company",
+  "source": "user_provided",
+  "created_at": "timestamp"
+}
+```
+
+> Company-specific information should only be used when reliable data is available. The MVP should not require building a large company knowledge database.
+
+### 9.9 Job Description
+
+A Job Description represents the requirements for a specific target opportunity.
+
+Potential fields:
+
+- `job_description_id`
+- `candidate_id`
+- `target_profile_id`
+- `company_id`
+- `title`
+- `raw_text`
+- `structured_requirements`
+- `source`
+- `created_at`
+
+The original job description should be preserved separately from the AI-generated structured interpretation:
+
+```
+Raw JD → AI Extraction → Structured Requirements
+```
+
+> The extracted requirements should not replace the original source text.
+
+### 9.10 Competency
+
+A Competency represents a capability that can be evaluated.
+
+| Category | Examples |
+|---|---|
+| Technical | Arrays, Strings, Linked Lists, Trees, Graphs, Dynamic Programming, Algorithms, OOP, SQL, Operating Systems, Computer Networks, System Design |
+| Behavioral | Communication, Ownership, Collaboration, Decision Making, Conflict Handling |
+| Senior-level | Architecture, Technical Leadership, System Design, Ownership |
+
+Each competency should have a stable identifier:
+
+```json
+{
+  "competency_id": "graph",
+  "name": "Graphs",
+  "category": "DSA",
+  "description": "Graph traversal, representation and problem solving"
+}
+```
+
+### 9.11 Target Competency Requirement
+
+A Target Competency Requirement represents the expected competency level for a specific target profile.
+
+```json
+{
+  "target_profile_id": "target_001",
+  "competency_id": "graph",
+  "expected_level": "high",
+  "importance": "high"
+}
+```
+
+This allows the same competency to have different expectations depending on the target:
+
+| Target | Competency | Expected Level |
+|---|---|---|
+| Software Engineer / SDE-1 | Graphs | High |
+| Software Engineer / SDE-2 | Graphs | High |
+| System Design / SDE-1 | System Design | Basic |
+| System Design / SDE-2 | System Design | High |
+
+### 9.12 Skill Evidence
+
+Skill Evidence represents an observable signal about a candidate's capability. Evidence may come from:
+
+- Coding assessments
+- Mock interviews
+- Structured assessments
+- Candidate-provided evidence
+- Completed preparation activities where meaningful
+- Other supported assessment sources
+
+```json
+{
+  "evidence_id": "evidence_001",
+  "candidate_id": "candidate_001",
+  "competency_id": "graph",
+  "source_type": "coding_interview",
+  "source_id": "interview_001",
+  "evidence_summary": "Candidate identified BFS but required assistance with implementation.",
+  "created_at": "timestamp"
+}
+```
+
+> Evidence should be traceable to its source.
+
+### 9.13 Skill State
+
+The candidate's current skill state is derived from available evidence.
+
+```json
+{
+  "candidate_id": "candidate_001",
+  "competency_id": "graph",
+  "current_level": "needs_improvement",
+  "confidence": 0.82,
+  "evidence_count": 4,
+  "last_assessed_at": "timestamp"
+}
+```
+
+The system should distinguish between **Current Skill State** and **Historical Evidence** — the current state may change while historical evidence remains available.
+
+### 9.14 Skill Gap
+
+A Skill Gap represents the difference between current candidate evidence and the target competency requirement.
+
+```json
+{
+  "skill_gap_id": "gap_001",
+  "candidate_id": "candidate_001",
+  "target_profile_id": "target_001",
+  "competency_id": "graph",
+  "current_level": "needs_improvement",
+  "target_level": "high",
+  "priority": "high",
+  "confidence": 0.82,
+  "status": "open"
+}
+```
+
+> The skill gap should be recalculated or updated when meaningful new evidence becomes available.
+
+### 9.15 Preparation Action
+
+A Preparation Action represents an activity recommended to improve a specific competency.
+
+```json
+{
+  "action_id": "action_001",
+  "candidate_id": "candidate_001",
+  "competency_id": "graph",
+  "action_type": "practice",
+  "title": "Practice BFS and DFS problems",
+  "priority": "high",
+  "reason": "Recent assessment indicates difficulty applying graph traversal independently.",
+  "status": "recommended"
+}
+```
+
+> The action should be connected to the skill gap that generated it.
+
+### 9.16 Assessment
+
+An Assessment represents a structured measurement of candidate performance.
+
+Potential fields: `assessment_id`, `candidate_id`, `target_profile_id`, `assessment_type`, `status`, `score`, `started_at`, `completed_at`
+
+Assessment types may include: Coding, System Design, Behavioral, CS Fundamentals.
+
+> The MVP may prioritize selected assessment types based on implementation scope.
+
+### 9.17 Interview Session
+
+An Interview Session represents a complete mock interview.
+
+```json
+{
+  "interview_id": "interview_001",
+  "candidate_id": "candidate_001",
+  "target_profile_id": "target_001",
+  "interview_type": "coding",
+  "status": "completed",
+  "started_at": "timestamp",
+  "completed_at": "timestamp"
+}
+```
+
+The interview should maintain its relationship with: Questions, Candidate responses, Evidence, Evaluation, Recommendations.
+
+### 9.18 Interview Question
+
+Each interview question should be stored as a separate entity.
+
+Potential fields: `question_id`, `interview_id`, `competency_id`, `question_type`, `difficulty`, `question_text`, `sequence_number`, `created_at`
+
+> Questions may be generated dynamically by the Interviewer Agent. The system should retain sufficient information to reproduce or audit the interview evaluation where appropriate.
+
+### 9.19 Interview Response
+
+An Interview Response stores the candidate's response to a question.
+
+Potential fields: `response_id`, `interview_id`, `question_id`, `candidate_id`, `response_text`, `submitted_at`
+
+For coding interviews, additional structured fields may include: `code_submission`, `language`, `execution_result`, `complexity_explanation`.
+
+> Raw candidate responses should remain distinguishable from AI-generated analysis.
+
+### 9.20 Evaluation
+
+Evaluation represents the structured result of applying a predefined rubric to candidate evidence.
+
+```json
+{
+  "evaluation_id": "evaluation_001",
+  "interview_id": "interview_001",
+  "overall_score": 68,
+  "max_score": 100,
+  "status": "completed"
+}
+```
+
+Individual rubric dimensions should be stored separately where practical:
+
+```
+Evaluation
+├── Problem Understanding
+├── Problem Solving
+├── Correctness
+├── Complexity Analysis
+├── Communication
+└── Code Quality
+```
+
+Each dimension should contain: Score, Maximum score, Evidence, Strength, Improvement area.
+
+### 9.21 Recommendation
+
+A Recommendation represents an actionable next step generated from the candidate's current state.
+
+```json
+{
+  "recommendation_id": "recommendation_001",
+  "candidate_id": "candidate_001",
+  "competency_id": "graph",
+  "priority": "high",
+  "action": "Practice BFS and DFS",
+  "reason": "Recent interview evidence indicates a gap in graph traversal.",
+  "status": "active",
+  "created_at": "timestamp"
+}
+```
+
+> Recommendations should be traceable to the evidence and skill gap that generated them.
+
+### 9.22 Workflow
+
+A Workflow represents an execution of a major CareerGraph process, e.g.:
+
+- `TARGET_PROFILE_GENERATION`
+- `SKILL_GAP_ANALYSIS`
+- `NEXT_BEST_ACTION`
+- `MOCK_INTERVIEW`
+- `INTERVIEW_EVALUATION`
+- `SKILL_UPDATE`
+
+```json
+{
+  "workflow_id": "workflow_001",
+  "candidate_id": "candidate_001",
+  "workflow_type": "mock_interview",
+  "status": "completed",
+  "started_at": "timestamp",
+  "completed_at": "timestamp"
+}
+```
+
+### 9.23 Agent Execution
+
+Agent Execution records the participation of an individual agent within a workflow.
+
+```json
+{
+  "execution_id": "execution_001",
+  "workflow_id": "workflow_001",
+  "agent_type": "interviewer",
+  "status": "completed",
+  "started_at": "timestamp",
+  "completed_at": "timestamp"
+}
+```
+
+Where appropriate, the system may record: Input references, Output references, Model used, Execution duration, Token usage, Error information.
+
+> Raw prompts and model outputs should not be stored unnecessarily if they contain sensitive candidate information.
+
+---
+
+## 9.24 Entity Relationship Overview
+
+```mermaid
+graph TD
+    Candidate --> CandidateProfile[Candidate Profile]
+    Candidate --> TargetProfile[Target Profile]
+    TargetProfile --> Role
+    TargetProfile --> Level
+    TargetProfile --> Company["Company (optional)"]
+    TargetProfile --> JobDescription["Job Description (optional)"]
+    TargetProfile --> TCR[Target Competency Requirements]
+    TCR --> Competency
+    SkillEvidence[Skill Evidence] --> Competency
+    Assessment --> SkillEvidence
+    InterviewSession[Interview Session] --> Assessment
+    InterviewSession --> Questions
+    InterviewSession --> Evaluation
+    Questions --> Responses
+    Evaluation --> SkillStateUpdate[Skill State Update]
+    Responses --> SkillStateUpdate
+    SkillStateUpdate --> SkillGap[Skill Gap]
+    SkillGap --> Recommendation
+```
+
+---
+
+## 9.25 Historical Data and Versioning
+
+CareerGraph AI should preserve historical information. For example, if a candidate's Graph competency changes:
+
+| Week | Level |
+|---|---|
+| Week 1 | Weak |
+| Week 2 | Weak |
+| Week 3 | Moderate |
+| Week 4 | Strong |
+
+The system should **not** simply overwrite all previous states. Historical evidence should remain available so the platform can calculate:
+
+- Improvement over time
+- Repeated weaknesses
+- Performance trends
+- Impact of recommendations
+- Assessment history
+
+> This historical information is important for the platform's analytics and readiness insights.
+
+---
+
+## 9.26 Data Separation
+
+The architecture should distinguish between:
+
+| Layer | Examples |
+|---|---|
+| **Raw Data** | Uploaded Resume, Original Job Description, Candidate Response, Code Submission, Interview Transcript |
+| **Structured Data** | Extracted Skills, Target Requirements, Competency Scores, Skill Gaps, Evaluation Results, Recommendations |
+| **Derived Analytics** | Progress Trend, Skill Improvement, Readiness Indicators, Priority Ranking, Recommendation Effectiveness |
+
+> This separation allows the system to trace important derived decisions back to their underlying evidence.
+
+---
+
+## 9.27 Data Sources
+
+**Candidate-Generated Data**
+Resume, candidate profile, target role, target level, target company, job description, assessment responses, interview responses, preparation activity.
+
+**Reference Data**
+Role definitions, level expectations, competency taxonomy, evaluation rubrics, interview categories.
+
+**Synthetic Data**
+Synthetic candidate profiles and historical performance data may be used for development, testing and demonstration.
+
+**Public Data**
+Where useful and legally appropriate, public datasets may be used for job requirements, skills, technology trends, and role information.
+
+> Any external dataset must be reviewed for licensing and usage restrictions before integration.
+
+---
+
+## 9.28 Data Privacy Requirements
+
+CareerGraph AI should follow data minimization principles. The system must **not** use:
+
+- Confidential employer information
+- Internal company systems
+- Proprietary interview questions
+- Confidential work-related datasets
+- Personally sensitive information that is unnecessary for the product
+
+> Candidate data should only be accessible to authorized users and services. Uploaded resumes and job descriptions should be handled as user-provided data and should not be exposed publicly.
+
+---
+
+## 9.29 Database Technology
+
+The final database technology will be selected based on the MVP architecture and Google Cloud requirements.
+
+```
+Application
+    │
+    ▼
+Database
+    ├── Candidate Data
+    ├── Target Profiles
+    ├── Skills / Competencies
+    ├── Assessments
+    ├── Interviews
+    ├── Evaluations
+    ├── Recommendations
+    └── Workflow State
+```
+
+Potential Google Cloud technologies:
+
+- **Firebase / Firestore** — application-oriented document data
+- **BigQuery** — analytical workloads and aggregated performance analysis
+- **Cloud Storage** — uploaded documents and larger objects
+
+> The MVP should avoid introducing multiple databases unless there is a clear technical reason.
+
+---
+
+## 9.30 Data Flow
+
+```mermaid
+flowchart TD
+    A[Resume / Candidate Input] --> B[Profile Extraction]
+    B --> C[Candidate Profile]
+    C --> D[Target Role / Level]
+    C --> E[Optional Company / JD]
+    D --> F[Target Profile]
+    E --> F
+    F --> G[Competency Requirements]
+    G --> H[Skill Gap Analysis]
+    H --> I[Recommendation]
+    I --> J[Preparation / Interview]
+    J --> K[Performance Evidence]
+    K --> L[Evaluation]
+    L --> M[Skill Update]
+    M --> N[Updated Skill Gap]
+    N --> O[Next Best Action]
+```
+
+---
+
+## 9.31 MVP Data Boundary
+
+The MVP should prioritize the following entities:
+
+- Candidate
+- Candidate Profile
+- Target Profile
+- Job Description
+- Competency
+- Target Competency Requirement
+- Skill Evidence
+- Skill Gap
+- Recommendation
+- Interview Session
+- Interview Question
+- Interview Response
+- Evaluation
+- Workflow
+
+> Additional entities may be introduced when required by implementation. The database should remain as simple as possible while supporting the complete CareerGraph feedback loop.
+
+---
+
+## 9.32 Data Architecture Success Criteria
+
+The data architecture will be considered successful when it can support the following flow **without manual intervention**:
+
+```mermaid
+flowchart TD
+    A[Candidate] --> B[Target Role + Level]
+    B --> C[Optional Company + JD]
+    C --> D[Target Profile]
+    D --> E[Skill Gap]
+    E --> F[Next Best Action]
+    F --> G[Interview]
+    G --> H[Evaluation]
+    H --> I[Evidence Update]
+    I --> J[Updated Skill Gap]
+    J --> F
+```
+
+> The architecture should preserve enough historical information to demonstrate measurable improvement over time while remaining practical for the MVP implementation.
+
