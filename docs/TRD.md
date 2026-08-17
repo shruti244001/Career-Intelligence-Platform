@@ -3857,25 +3857,25 @@ For example, a coding interview evaluation does not require the complete candida
 Each agent should receive a task-specific context.
 
 Example:
-# Profile Agent
+### Profile Agent
 ```text
 Candidate Resume
 Candidate Profile
 ```
-# Requirement Agent
+### Requirement Agent
 ```text
 Target Role
 Target Level
 Optional Company
 Job Description
 ```
-# Skill Gap Agent
+### Skill Gap Agent
 ```text
 Candidate Profile
 Target Requirements
 Existing Skill Evidence
 ```
-# Interviewer Agent
+### Interviewer Agent
 ```text
 Target Profile
 Interview Type
@@ -3884,7 +3884,7 @@ Interview State
 Previous Questions
 Candidate Responses
 ```
-# Evaluation Agent
+### Evaluation Agent
 ```text
 Target Profile
 Interview Transcript
@@ -3892,7 +3892,7 @@ Candidate Responses
 Relevant Competencies
 Evaluation Rubric
 ```
-# Recommendation Agent
+### Recommendation Agent
 ```text
 Target Profile
 Skill Gaps
@@ -4363,27 +4363,27 @@ AI outputs are probabilistic, so testing should not depend exclusively on exact 
 
 Testing should include:
 
-# Schema Tests
+### Schema Tests
 
 Verify that outputs match the expected structure.
 
-# Constraint Tests
+### Constraint Tests
 
 Verify that outputs respect defined rules.
 
-# Grounding Tests
+### Grounding Tests
 
 Verify that the model does not introduce unsupported candidate information.
 
-# Rubric Tests
+### Rubric Tests
 
 Verify that evaluation follows the defined scoring criteria.
 
-# Regression Tests
+### Regression Tests
 
 Run representative test cases whenever prompts or models change.
 
-# Human Review
+### Human Review
 
 Important evaluation behavior should be manually reviewed during MVP development.
 
