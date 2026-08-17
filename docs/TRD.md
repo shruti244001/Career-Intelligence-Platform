@@ -2749,3 +2749,967 @@ flowchart TD
 
 > The architecture should preserve enough historical information to demonstrate measurable improvement over time while remaining practical for the MVP implementation.
 
+## 10. Application and API Architecture
+
+CareerGraph AI will use a modular application architecture that separates the user interface, application APIs, agentic workflows, data persistence, and Google Cloud infrastructure.
+
+The architecture should allow the MVP to be developed incrementally while keeping the core agent workflows independent from the presentation layer.
+
+The high-level application flow is:
+
+```text
+User
+ |
+ v
+Frontend Application
+ |
+ v
+Backend API
+ |
+ +----------------------+
+ |                      |
+ v                      v
+Application Services   Agent Orchestrator
+ |                      |
+ v                      v
+Database             Specialized Agents
+ |                      |
+ +----------+-----------+
+            |
+            v
+       Gemini / AI
+            |
+            v
+      Evaluation /
+      Recommendations
+            |
+            v
+         Database
+```
+## 10.1 Application Architecture Principles
+
+The application architecture should follow these principles:
+
+- Separate frontend and backend responsibilities.
+- Keep business logic outside the UI layer.
+- Keep agent orchestration separate from normal application services.
+- Use APIs as the primary communication boundary between frontend and backend.
+- Keep database access behind application services where practical.
+- Validate user input before processing.
+- Authenticate and authorize requests.
+- Avoid exposing Gemini API credentials to the frontend.
+- Keep long-running AI workflows asynchronous where appropriate.
+- Make important operations observable and traceable.
+- Design components so individual services can be replaced without redesigning the entire application.
+
+## 10.2 High-Level Component Architecture
+
+The MVP will contain the following logical components:
+```text
+                         ┌──────────────────────┐
+                         │        User          │
+                         └──────────┬───────────┘
+                                    |
+                                    v
+                         ┌──────────────────────┐
+                         │   Frontend Web App   │
+                         │                      │
+                         │ Profile              │
+                         │ Target Setup         │
+                         │ Skill Gaps           │
+                         │ Interviews           │
+                         │ Recommendations      │
+                         │ Progress Dashboard   │
+                         └──────────┬───────────┘
+                                    |
+                              HTTPS / API
+                                    |
+                                    v
+                         ┌──────────────────────┐
+                         │     Backend API      │
+                         │                      │
+                         │ Authentication       │
+                         │ Validation           │
+                         │ Candidate Services   │
+                         │ Target Services      │
+                         │ Interview Services   │
+                         │ Recommendation API  │
+                         └──────────┬───────────┘
+                                    |
+                 +------------------+------------------+
+                 |                                     |
+                 v                                     v
+      ┌─────────────────────┐              ┌─────────────────────┐
+      │ Application Services │              │ Agent Orchestrator  │
+      └──────────┬──────────┘              └──────────┬──────────┘
+                 |                                    |
+                 |                         +----------+----------+
+                 |                         |          |          |
+                 |                         v          v          v
+                 |                    Profile     Interview   Evaluation
+                 |                    Agent       Agent       Agent
+                 |                         |          |          |
+                 |                         +----------+----------+
+                 |                                    |
+                 +----------------+-------------------+
+                                  |
+                                  v
+                         ┌──────────────────────┐
+                         │   Gemini / AI Layer  │
+                         └──────────────────────┘
+
+                                  |
+                                  v
+
+                         ┌──────────────────────┐
+                         │      Data Layer      │
+                         │                      │
+                         │ Firestore            │
+                         │ Cloud Storage        │
+                         │ BigQuery (analytics) │
+                         └──────────────────────┘
+```
+The final deployment architecture may simplify or expand these components depending on MVP implementation results.
+
+## 10.3 Frontend Architecture
+
+The frontend provides the user-facing application.
+
+The frontend should be responsible for:
+
+- Authentication interface.
+- Candidate profile creation.
+- Resume upload.
+- Target role selection.
+- Target level selection.
+- Optional company selection.
+- Job description input.
+- Skill-gap visualization.
+- Recommendation display.
+- Mock interview interface.
+- Interview progress.
+- Evaluation results.
+- Preparation history.
+- Progress visualization.
+
+The frontend should not contain:
+
+- Gemini API keys.
+- Database credentials.
+- Agent orchestration logic.
+- Sensitive business rules that must be enforced server-side.
+  
+## 10.4 Frontend Page Structure
+
+The MVP may contain the following pages:
+
+```text
+/
+├── Landing / Login
+│
+├── /profile
+│      Candidate Profile
+│
+├── /target
+│      Target Role Configuration
+│
+├── /analysis
+│      Skill Gap Analysis
+│
+├── /recommendations
+│      Next Best Actions
+│
+├── /interview
+│      Mock Interview
+│
+├── /evaluation
+│      Interview Evaluation
+│
+└── /dashboard
+       Progress and Career Insights
+```
+The exact route structure may be adjusted during implementation.
+
+## 10.5 Backend Architecture
+
+The backend will provide the main application API and coordinate access to application services.
+
+The backend is responsible for:
+
+- Authentication validation
+- Authorization
+- Request validation
+- Candidate profile management
+- Target profile management
+- Resume processing requests
+- Job description processing
+- Skill-gap analysis requests
+- Recommendation requests
+- Interview session management
+- Evaluation requests
+- Workflow management
+- Database operations
+- AI service integration
+- Error handling
+- Logging and observability
+
+## 10.6 Backend Service Boundaries
+
+The backend should be logically divided into services/modules.
+
+Recommended structure:
+```text
+Backend
+│
+├── Auth Service
+│
+├── Candidate Service
+│
+├── Target Profile Service
+│
+├── Resume Service
+│
+├── Job Description Service
+│
+├── Skill Gap Service
+│
+├── Recommendation Service
+│
+├── Interview Service
+│
+├── Evaluation Service
+│
+├── Workflow Service
+│
+└── Data Access Layer
+```
+These are initially logical modules rather than necessarily separate deployed microservices.
+
+The MVP should prefer a modular monolith or small number of services rather than prematurely introducing many independently deployed services.
+
+## 10.7 API Architecture
+
+The frontend will communicate with the backend using HTTPS APIs.
+
+The API should follow a resource-oriented structure.
+
+```text
+/api/v1/profile
+/api/v1/targets
+/api/v1/resumes
+/api/v1/job-descriptions
+/api/v1/skill-gaps
+/api/v1/recommendations
+/api/v1/interviews
+/api/v1/evaluations
+/api/v1/workflows
+```
+The /api/v1 prefix allows future API versions to be introduced without immediately breaking existing clients.
+
+## 10.8 Candidate Profile APIs
+
+Example endpoints:
+
+```text
+GET    /api/v1/profile
+POST   /api/v1/profile
+PUT    /api/v1/profile
+```
+Responsibilities:
+
+- Retrieve candidate profile
+- Create candidate profile
+- Update candidate profile
+
+The backend should validate all incoming fields.
+
+## 10.9 Target Profile APIs
+
+Example endpoints:
+```text
+GET    /api/v1/targets
+POST   /api/v1/targets
+GET    /api/v1/targets/{target_id}
+PUT    /api/v1/targets/{target_id}
+```
+A target profile may contain:
+
+- Role
+- Level
+- Company (optional)
+- Job Description (optional)
+
+Example:
+```json
+{
+  "role": "Software Engineer",
+  "level": "SDE-1",
+  "company": "optional",
+  "job_description_id": "jd_001"
+}
+```
+Creating or updating a target profile may trigger a target-profile generation or skill-gap workflow.
+
+## 10.10 Resume APIs
+
+Example endpoints:
+```text
+POST /api/v1/resumes
+GET  /api/v1/resumes/{resume_id}
+```
+The resume workflow is:
+```text
+Frontend
+   |
+   v
+Resume Upload
+   |
+   v
+Cloud Storage
+   |
+   v
+Backend
+   |
+   v
+Resume Processing
+   |
+   v
+Profile Extraction Agent
+   |
+   v
+Structured Candidate Profile
+```
+The application should store the file itself in object storage and retain a reference in the database.
+
+## 10.11 Job Description APIs
+
+Example endpoints:
+```text
+POST /api/v1/job-descriptions
+GET  /api/v1/job-descriptions/{jd_id}
+```
+The processing flow is:
+```text
+Job Description
+      |
+      v
+Backend
+      |
+      v
+Requirement Extraction
+      |
+      v
+Structured Requirements
+      |
+      v
+Target Profile
+```
+The original job description should remain available for traceability.
+
+## 10.12 Skill Gap APIs
+
+Example endpoints:
+```text
+GET  /api/v1/skill-gaps
+GET  /api/v1/skill-gaps/{gap_id}
+POST /api/v1/skill-gaps/analyze
+```
+The analysis request may trigger:
+```text
+Backend
+   |
+   v
+Workflow Service
+   |
+   v
+Agent Orchestrator
+   |
+   v
+Profile / Requirement Analysis
+   |
+   v
+Skill Gap Analysis
+   |
+   v
+Database
+```
+The frontend should retrieve the resulting structured skill gaps rather than directly interacting with the agents.
+
+## 10.13 Recommendation APIs
+
+Example endpoints:
+```text
+GET  /api/v1/recommendations
+GET  /api/v1/recommendations/{recommendation_id}
+POST /api/v1/recommendations/generate
+PUT  /api/v1/recommendations/{recommendation_id}
+```
+The recommendation service should use the latest available candidate evidence and target requirements.
+
+Example:
+```text
+Current Skill State
+        +
+Target Profile
+        +
+Recent Evidence
+        |
+        v
+Recommendation Workflow
+        |
+        v
+Next Best Action
+```
+## 10.14 Interview APIs
+
+Example endpoints:
+```text
+POST /api/v1/interviews
+GET  /api/v1/interviews/{interview_id}
+POST /api/v1/interviews/{interview_id}/responses
+POST /api/v1/interviews/{interview_id}/complete
+```
+The interview lifecycle is:
+```text
+CREATE
+  |
+  v
+IN_PROGRESS
+  |
+  v
+RESPONSES
+  |
+  v
+COMPLETE
+  |
+  v
+EVALUATION
+  |
+  v
+SKILL UPDATE
+  |
+  v
+RECOMMENDATION
+```
+The interview session should maintain its state throughout the process.
+
+## 10.15 Evaluation APIs
+
+Example endpoints:
+```text
+GET  /api/v1/evaluations/{evaluation_id}
+POST /api/v1/interviews/{interview_id}/evaluate
+```
+The evaluation request should trigger the appropriate evaluation workflow.
+
+The backend should not blindly trust scores generated by the frontend.
+
+Evaluation results must be generated and validated server-side.
+
+## 10.16 Workflow APIs
+
+Long-running agentic workflows should be represented explicitly.
+
+Example endpoints:
+```text
+GET /api/v1/workflows/{workflow_id}
+POST /api/v1/workflows/{workflow_id}/cancel
+```
+Example workflow states:
+```text
+CREATED
+   ↓
+QUEUED
+   ↓
+RUNNING
+   ↓
+WAITING_FOR_INPUT
+   ↓
+COMPLETED
+```
+Failure states:
+```text
+FAILED
+RETRYING
+CANCELLED
+```
+The frontend can poll or subscribe to workflow status depending on the final implementation.
+
+## 10.17 Synchronous vs Asynchronous Operations
+
+Not every operation requires an asynchronous workflow.
+
+## Synchronous operations
+
+Suitable for:
+
+- Reading candidate profile
+- Updating profile fields
+- Reading skill gaps
+- Reading recommendations
+- Reading interview history
+
+Example:
+```text
+Frontend
+   |
+   v
+GET /api/v1/skill-gaps
+   |
+   v
+Backend
+   |
+   v
+Database
+   |
+   v
+Response
+```
+## Asynchronous operations
+
+Suitable for:
+
+- Resume processing
+- Large document processing
+- Skill-gap generation
+- Long-running interviews
+- Interview evaluation
+
+Recommendation generation where multiple agent calls are required.
+
+Example:
+```text
+Frontend
+   |
+   v
+POST /api/v1/skill-gaps/analyze
+   |
+   v
+Create Workflow
+   |
+   v
+Return workflow_id
+   |
+   v
+Agent Execution
+   |
+   v
+Database Update
+```
+The frontend can then retrieve workflow status.
+
+## 10.18 API Request Flow
+
+A typical authenticated request should follow:
+```text
+User
+ |
+ v
+Frontend
+ |
+ v
+HTTPS Request
+ |
+ v
+Authentication Validation
+ |
+ v
+Authorization Check
+ |
+ v
+Input Validation
+ |
+ v
+Application Service
+ |
+ +-------------------+
+ |                   |
+ v                   v
+Database          Agent Workflow
+ |                   |
+ +---------+---------+
+           |
+           v
+       API Response
+           |
+           v
+        Frontend
+```
+## 10.19 Agent Invocation Boundary
+
+The frontend must never directly invoke specialized agents.
+
+Instead:
+```text
+Frontend
+   |
+   v
+Backend API
+   |
+   v
+Workflow Service
+   |
+   v
+Agent Orchestrator
+   |
+   v
+Specialized Agent
+```
+This provides:
+
+- Security
+- Centralized validation
+- Controlled model access
+- Logging
+- Cost management
+- Workflow persistence
+- Error handling
+
+## 10.20 Gemini Integration Boundary
+
+Gemini API access should remain on the backend or controlled agent execution environment.
+
+The frontend should never contain a Gemini API key.
+
+The intended flow is:
+```text
+Frontend
+    |
+    v
+Backend
+    |
+    v
+Agent / AI Service
+    |
+    v
+Gemini
+    |
+    v
+Structured Output
+    |
+    v
+Backend
+    |
+    v
+Database
+    |
+    v
+Frontend
+```
+Structured outputs should be preferred whenever the workflow requires predictable data.
+
+## 10.21 API Response Structure
+
+The API should use consistent response structures.
+
+Successful response example:
+```json
+{
+  "success": true,
+  "data": {},
+  "error": null
+}
+```
+Error response example:
+```json
+{
+  "success": false,
+  "data": null,
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "Invalid target level."
+  }
+}
+```
+The exact response schema may be finalized during implementation.
+
+## 10.22 API Validation
+
+All API inputs should be validated.
+
+Examples:
+```text
+Target Role
+- Required
+
+Target Level
+- Required
+
+Company
+- Optional
+
+Job Description
+- Optional
+
+Resume
+- Supported file type
+- Maximum file size
+```
+Validation should occur server-side even if frontend validation is also implemented.
+
+## 10.23 Authentication and Authorization Boundary
+
+The application should authenticate users before accessing candidate-specific data.
+
+Conceptually:
+```text
+User
+ |
+ v
+Authentication
+ |
+ v
+Identity
+ |
+ v
+Authorization
+ |
+ v
+Candidate Data
+```
+A candidate should only be able to access resources belonging to that candidate unless an explicitly authorized administrative or service role exists.
+
+The final authentication implementation will be documented in the security section.
+
+## 10.24 Google Cloud Deployment Architecture
+
+The initial deployment is expected to use Google Cloud services.
+
+A possible MVP architecture is:
+```text
+                    Internet
+                       |
+                       v
+               Frontend Application
+                       |
+                       v
+                    Backend
+                  Cloud Run
+                       |
+          +------------+------------+
+          |            |            |
+          v            v            v
+      Firestore   Cloud Storage   Pub/Sub
+          |                         |
+          |                         v
+          |                  Async Workflows
+          |                         |
+          +------------+------------+
+                       |
+                       v
+                Agent Execution
+                       |
+                       v
+                    Gemini
+                       |
+                       v
+                  BigQuery
+                 (Analytics)
+```
+This is a conceptual architecture.
+
+The final service selection should be based on actual MVP requirements and cost constraints.
+
+## 10.25 Cloud Run
+
+Cloud Run may host:
+
+- Backend API
+- Agent orchestration service
+- Supporting application services
+
+Cloud Run is preferred for the MVP because it provides:
+
+- Serverless deployment
+- Automatic scaling
+- Container-based execution
+- Simple deployment
+- Integration with Google Cloud services
+
+The MVP should avoid creating separate Cloud Run services for every logical module unless there is a clear need.
+
+## 10.26 Firestore
+
+Firestore may be used for application-oriented transactional data such as:
+
+- Candidates
+- Profiles
+- Target Profiles
+- Competencies
+- Skill Gaps
+- Recommendations
+- Interviews
+- Evaluations
+- Workflow State
+
+Firestore should be evaluated against the final access patterns before implementation.
+
+## 10.27 Cloud Storage
+
+Cloud Storage may be used for:
+
+- Resume files
+- Uploaded documents
+- Large generated artifacts where required
+
+The database should store references to these files rather than embedding large binary objects.
+
+## 10.28 Pub/Sub
+
+Pub/Sub may be introduced for asynchronous operations such as:
+
+- Resume Processing
+- Skill Gap Analysis
+- Interview Evaluation
+- Recommendation Generation
+- Analytics Events
+
+Conceptual flow:
+```text
+API
+ |
+ v
+Publish Event
+ |
+ v
+Pub/Sub
+ |
+ v
+Worker / Agent Workflow
+ |
+ v
+Database
+```
+Pub/Sub should only be introduced where asynchronous processing provides a clear technical benefit.
+
+## 10.29 BigQuery
+
+BigQuery may be used for analytical workloads rather than primary transactional application storage.
+
+Potential analytics include:
+
+- Skill improvement over time
+- Assessment performance
+- Recommendation completion
+- Interview performance
+- Competency trends
+- Aggregate anonymized usage metrics
+
+The MVP should only introduce BigQuery analytics that provide meaningful value to the product or demonstration.
+
+## 10.30 API Security Principles
+
+The API architecture should enforce:
+
+- Authentication
+- Authorization
+- Input validation
+- Secure secret management
+- HTTPS communication
+- Rate limiting where appropriate
+- File validation
+- Controlled AI invocation
+- Logging without exposing sensitive candidate data.
+
+Secrets must not be committed to GitHub.
+
+Environment-specific configuration should be managed through appropriate environment variables or Google Cloud secret-management mechanisms.
+
+## 10.31 Error Handling
+
+The API should return predictable errors.
+
+Example:
+```text
+400 → Invalid request
+401 → Unauthenticated
+403 → Unauthorized
+404 → Resource not found
+409 → Resource conflict
+422 → Validation failure
+429 → Rate limit exceeded
+500 → Internal server error
+503 → Temporary service unavailable
+```
+Agent failures should be translated into user-safe error messages while preserving detailed diagnostic information in backend logs.
+
+## 10.32 API Versioning
+
+The initial API will use:
+```text
+/api/v1/
+```
+Future breaking changes can be introduced through:
+```text
+/api/v2/
+```
+The MVP should avoid unnecessary version complexity while maintaining a clear boundary for future evolution.
+
+## 10.33 Application Architecture Decision
+
+The MVP will initially prefer a modular backend architecture rather than a large microservice architecture.
+
+The preferred structure is:
+```text
+Frontend
+   |
+   v
+Backend API
+   |
+   +-------------------------+
+   |                         |
+   v                         v
+Application Modules      Agent Workflows
+   |                         |
+   +------------+------------+
+                |
+                v
+             Data Layer
+```
+This approach reduces:
+
+- Deployment complexity
+- Infrastructure overhead
+- Debugging complexity
+- Development time
+
+Individual components can be separated into independent services later if scaling or operational requirements justify the change.
+
+## 10.34 MVP Application Boundary
+
+The MVP application must support the following end-to-end path:
+```text
+Candidate
+    |
+    v
+Create Profile
+    |
+    v
+Select Target
+(Role + Level + Optional Company + Optional JD)
+    |
+    v
+Upload Resume
+    |
+    v
+Profile Extraction
+    |
+    v
+Skill Gap Analysis
+    |
+    v
+Next Best Action
+    |
+    v
+Mock Interview
+    |
+    v
+Evaluation
+    |
+    v
+Skill Update
+    |
+    v
+Updated Recommendation
+```
+The application architecture should be considered successful when this core loop can operate reliably through the frontend without requiring manual backend intervention.
