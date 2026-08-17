@@ -3713,3 +3713,757 @@ Skill Update
 Updated Recommendation
 ```
 The application architecture should be considered successful when this core loop can operate reliably through the frontend without requiring manual backend intervention.
+
+# 11. AI, Gemini and Prompt Architecture
+
+CareerGraph AI uses Generative AI and agentic workflows to interpret candidate information, understand target requirements, conduct adaptive interviews, evaluate evidence, and generate personalized recommendations.
+
+The AI layer should be used where reasoning, interpretation, contextual understanding, or natural-language generation provides a clear technical benefit.
+
+Deterministic application logic should remain outside the AI layer wherever practical.
+
+---
+
+## 11.1 AI Architecture Principles
+
+The AI architecture should follow these principles:
+
+- Use Gemini for reasoning, interpretation, contextual analysis, and natural-language generation.
+- Do not use an LLM for deterministic calculations when conventional software logic is sufficient.
+- Use structured outputs for machine-readable agent results.
+- Keep prompts version-controlled.
+- Separate system instructions from dynamic candidate data.
+- Provide only the context required for each agent task.
+- Avoid unnecessary model calls.
+- Validate important AI-generated outputs before persistence.
+- Preserve evidence used for important evaluations.
+- Do not expose API keys or credentials to the frontend.
+- Design AI workflows so that model failures can be handled gracefully.
+- Prefer explainable outputs over unsupported numerical claims.
+- Do not represent AI-generated scores as guaranteed hiring probabilities.
+
+---
+
+## 11.2 AI Responsibility Boundary
+
+CareerGraph AI will distinguish between agentic AI responsibilities and normal software engineering responsibilities.
+
+### Agentic AI
+
+AI agents may be responsible for:
+
+- Understanding resumes.
+- Extracting candidate skills.
+- Understanding job descriptions.
+- Interpreting target requirements.
+- Identifying potential skill gaps.
+- Conducting adaptive interviews.
+- Generating contextual follow-up questions.
+- Interpreting candidate responses.
+- Applying evaluation rubrics.
+- Generating evidence-based recommendations.
+- Explaining evaluation results.
+
+### Normal Application Logic
+
+Conventional software should be responsible for:
+
+- Authentication.
+- Authorization.
+- Database CRUD operations.
+- Input validation.
+- Session management.
+- Workflow state management.
+- Score aggregation where deterministic.
+- Permission checks.
+- File handling.
+- API routing.
+- Error handling.
+- Persistence.
+- Logging.
+- Cost and usage controls.
+
+This separation prevents the LLM from becoming responsible for functionality that can be implemented more reliably using deterministic software.
+
+---
+
+## 11.3 Gemini Integration
+
+Gemini will provide the primary Generative AI capability for CareerGraph AI.
+
+The AI integration will follow:
+
+```text
+Application / Workflow
+        |
+        v
+Agent
+        |
+        v
+Gemini Model
+        |
+        v
+Structured Output
+        |
+        v
+Validation
+        |
+        v
+Application State
+```
+
+The exact Gemini model used may change during development based on:
+
+- Quality requirements
+- Latency
+- Cost
+- Context requirements
+- Availability
+- Google Cloud recommendations
+
+The model selection should therefore remain configurable.
+
+## 11.4 Agent-to-Gemini Interaction
+
+Agents should not directly expose raw application state to the model.
+
+Instead, the workflow should construct a controlled context.
+
+Example:
+```text
+Candidate Data
+      |
+      v
+Context Builder
+      |
+      v
+Relevant Context
+      |
+      v
+Agent Prompt
+      |
+      v
+Gemini
+      |
+      v
+Structured Response
+```
+Only information relevant to the current task should be provided.
+
+For example, a coding interview evaluation does not require the complete candidate resume if the evaluation can be performed using the interview transcript, target competency and evaluation rubric.
+
+## 11.5 Agent Context
+
+Each agent should receive a task-specific context.
+
+Example:
+# Profile Agent
+```text
+Candidate Resume
+Candidate Profile
+```
+# Requirement Agent
+```text
+Target Role
+Target Level
+Optional Company
+Job Description
+```
+# Skill Gap Agent
+```text
+Candidate Profile
+Target Requirements
+Existing Skill Evidence
+```
+# Interviewer Agent
+```text
+Target Profile
+Interview Type
+Relevant Competencies
+Interview State
+Previous Questions
+Candidate Responses
+```
+# Evaluation Agent
+```text
+Target Profile
+Interview Transcript
+Candidate Responses
+Relevant Competencies
+Evaluation Rubric
+```
+# Recommendation Agent
+```text
+Target Profile
+Skill Gaps
+Recent Evaluation
+Preparation History
+Previous Recommendations
+```
+## 11.6 Prompt Architecture
+
+Prompts should be treated as version-controlled application assets.
+
+A prompt should contain conceptually:
+```text
+System Instructions
++
+Agent Role
++
+Task Definition
++
+Relevant Context
++
+Constraints
++
+Output Schema
+```
+Example:
+```text
+SYSTEM:
+You are the CareerGraph Skill Gap Agent.
+
+
+ROLE:
+Identify competency gaps between a candidate's current
+evidence and the target competency requirements.
+
+
+TASK:
+Analyze the supplied candidate evidence and target requirements.
+
+
+CONSTRAINTS:
+- Do not invent candidate experience.
+- Distinguish evidence from inference.
+- Do not make hiring predictions.
+- Return only competencies supported by the supplied context.
+
+
+OUTPUT:
+Return structured JSON matching the defined schema.
+```
+Dynamic candidate information should be injected separately from stable instructions.
+
+## 11.7 Prompt Versioning
+
+Each production prompt should have a version.
+
+Example:
+```text
+skill_gap_agent_v1
+skill_gap_agent_v2
+interviewer_agent_v1
+evaluation_agent_v1
+recommendation_agent_v1
+```
+Prompt changes should be tracked through Git.
+
+This allows the system to identify which prompt version produced a particular result.
+
+Example:
+```json
+{
+  "agent": "skill_gap_agent",
+  "prompt_version": "v1.2",
+  "model": "configured Gemini model"
+}
+```
+
+## 11.8 Structured Output
+
+AI-generated results that are consumed by application code should use structured schemas.
+
+Example Skill Gap output:
+```json
+{
+  "skill_gaps": [
+    {
+      "competency": "Graphs",
+      "current_level": "needs_improvement",
+      "target_level": "high",
+      "priority": "high",
+      "confidence": 0.86,
+      "evidence": [
+        "Candidate struggled with BFS implementation."
+      ]
+    }
+  ]
+}
+```
+The application should validate the output before storing it.
+
+Invalid or incomplete output should not be treated as a successful workflow result.
+
+## 11.9 Evidence-Based AI Evaluation
+
+CareerGraph AI should avoid unexplained scoring.
+
+The evaluation flow should be:
+```text
+Candidate Response
+        |
+        v
+Relevant Evidence
+        |
+        v
+Evaluation Rubric
+        |
+        v
+Dimension-Level Evaluation
+        |
+        v
+Structured Result
+```
+For example:
+```json
+{
+  "dimension": "Problem Solving",
+  "score": 3,
+  "max_score": 5,
+  "evidence": [
+    "Candidate identified a valid traversal approach.",
+    "Candidate required assistance to optimize the approach."
+  ],
+  "improvement_area": "Practice selecting optimal graph traversal strategies independently."
+}
+```
+The score must be supported by evidence.
+
+## 11.10 AI Evaluation vs Hiring Prediction
+
+CareerGraph AI will evaluate preparation evidence.
+
+It will not claim:
+```text
+"You have a 92% probability of getting hired."
+```
+Instead, it may provide:
+```text
+"Your recent coding assessments indicate a gap
+in graph problem solving relative to the selected target profile."
+```
+The system may provide readiness indicators only when they are derived from defined competency evidence and clearly presented as preparation guidance rather than hiring guarantees.
+
+## 11.11 Adaptive Interview Architecture
+
+The Interviewer Agent should maintain interview state.
+
+The conceptual loop is:
+```text
+Interview Context
+      |
+      v
+Generate Question
+      |
+      v
+Candidate Response
+      |
+      v
+Analyze Response
+      |
+      +--------------------+
+      |                    |
+      v                    v
+Sufficient Evidence   More Evidence Needed
+      |                    |
+      v                    v
+Next Topic             Follow-up
+                           |
+                           v
+                    Candidate Response
+```
+The agent should use the interview state to avoid:
+
+- Repeating questions unnecessarily.
+- Losing track of previous responses.
+- Asking unrelated follow-up questions.
+- Exceeding the configured interview scope.
+
+## 11.12 Interview Difficulty Adaptation
+
+Where supported by the MVP, interview difficulty may adapt based on candidate performance.
+
+Conceptually:
+```text
+Strong Performance
+        ↓
+Increase Difficulty / Depth
+
+
+Expected Performance
+        ↓
+Continue
+
+
+Weak Performance
+        ↓
+Probe Understanding / Adjust Difficulty
+```
+Adaptation should remain bounded by the interview configuration.
+
+The AI should not continuously increase difficulty without considering the target level and interview objectives.
+
+## 11.13 Recommendation Generation
+
+Recommendations should be generated from structured candidate state.
+
+The recommendation flow is:
+```text
+Target Profile
+      +
+Skill Gaps
+      +
+Recent Evidence
+      +
+Preparation History
+      |
+      v
+Recommendation Agent
+      |
+      v
+Candidate-Specific Recommendation
+```
+A recommendation should contain:
+
+- Action
+- Related competency
+- Priority
+- Reason
+- Supporting evidence
+- Expected purpose
+
+Example:
+```json
+{
+  "action": "Practice BFS and DFS problems",
+  "competency": "Graphs",
+  "priority": "high",
+  "reason": "Recent interview evidence indicates difficulty implementing graph traversal independently."
+}
+```
+## 11.14 AI Output Validation
+
+AI outputs must pass application-level validation before being persisted.
+
+Conceptually:
+```text
+Gemini Output
+      |
+      v
+Schema Validation
+      |
+      +---- Invalid → Retry / Repair / Fail
+      |
+      v
+Business Validation
+      |
+      +---- Invalid → Reject
+      |
+      v
+Persist
+```
+Examples of business validation include:
+
+- Referenced competency must exist.
+- Score must remain within the permitted range.
+- Priority must be one of the supported values.
+- Candidate ID must match the active workflow.
+- Evaluation must reference a valid interview.
+- Recommendation must reference a valid competency where required.
+
+## 11.15 AI Failure Handling
+
+Possible AI failures include:
+
+- API timeout
+- Rate limit
+- Invalid structured output
+- Model unavailability
+- Safety-related refusal
+- Unexpected response format
+- Insufficient context
+- Internal workflow failure
+
+The application should handle these failures explicitly.
+
+Example:
+```text
+Agent Request
+      |
+      v
+Gemini
+      |
+      +---- Success → Validate → Persist
+      |
+      +---- Invalid Output → Retry / Repair
+      |
+      +---- Timeout → Controlled Retry
+      |
+      +---- Persistent Failure → Mark Workflow Failed
+```
+The user should receive a meaningful error message without exposing internal model or infrastructure details.
+
+## 11.16 Model Selection Strategy
+
+The application should not hard-code a single model throughout the codebase.
+
+Instead, model configuration should be centralized.
+
+Conceptually:
+```text
+AI Configuration
+
+
+MODEL_PROFILE_EXTRACTION
+MODEL_SKILL_GAP
+MODEL_INTERVIEW
+MODEL_EVALUATION
+MODEL_RECOMMENDATION
+```
+Different tasks may eventually use different model configurations depending on:
+
+- Reasoning complexity
+- Latency requirements
+- Cost
+- Context size
+- Output quality
+
+For the MVP, minimizing unnecessary model diversity is preferred.
+
+## 11.17 AI Cost Management
+
+AI usage should be controlled because the build phase operates under limited cloud credits.
+
+The application should:
+
+- Avoid unnecessary repeated model calls.
+- Cache reusable results where appropriate.
+- Use deterministic processing where possible.
+- Limit interview length.
+- Limit retry attempts.
+- Avoid sending unnecessary context.
+- Use appropriate models for each task.
+- Track model usage where supported.
+- Monitor expensive workflows.
+
+A full three-round interview should not automatically trigger unlimited model calls.
+
+## 11.18 Context Management
+
+The system should provide agents only the context necessary for their task.
+
+Example:
+```text
+BAD:
+
+Candidate Profile
++
+Complete Resume
++
+Complete JD
++
+All Previous Interviews
++
+All Previous Conversations
++
+All Historical Data
+```
+when only a small subset is required.
+
+Preferred:
+```text
+Relevant Candidate Evidence
++
+Relevant Target Competencies
++
+Current Interview Context
++
+Evaluation Rubric
+```
+This reduces:
+
+- Cost
+- Latency
+- Noise
+- Risk of irrelevant reasoning
+  
+## 11.19 Agent Handoff Contract
+
+Agent-to-agent communication should use structured data rather than relying on natural-language conversation wherever practical.
+
+Example:
+```text
+Profile Agent
+      |
+      v
+Candidate Profile JSON
+      |
+      v
+Skill Gap Agent
+      |
+      v
+Skill Gap JSON
+      |
+      v
+Recommendation Agent
+      |
+      v
+Recommendation JSON
+```
+This makes workflows easier to:
+
+- Validate
+- Debug
+- Test
+- Monitor
+- Reuse
+
+## 11.20 AI Observability
+
+AI workflows should record appropriate metadata.
+
+Potential metadata includes:
+
+- Workflow ID.
+- Agent type.
+- Prompt version.
+- Model configuration.
+- Execution status.
+- Execution duration.
+- Retry count.
+- Error type.
+
+Token/usage information where available.
+
+Sensitive candidate content should not be unnecessarily duplicated in logs.
+
+## 11.21 Prompt and Model Configuration
+
+AI configuration should be externalized from application logic.
+
+Conceptually:
+```text
+Configuration
+│
+├── Model Configuration
+├── Prompt Versions
+├── Temperature / Generation Settings
+├── Token Limits
+├── Retry Limits
+└── Feature Flags
+```
+Environment-specific values should not be hard-coded.
+
+Secrets must not be committed to GitHub.
+
+## 11.22 AI Testing Strategy
+
+AI outputs are probabilistic, so testing should not depend exclusively on exact string matching.
+
+Testing should include:
+
+# Schema Tests
+
+Verify that outputs match the expected structure.
+
+# Constraint Tests
+
+Verify that outputs respect defined rules.
+
+# Grounding Tests
+
+Verify that the model does not introduce unsupported candidate information.
+
+# Rubric Tests
+
+Verify that evaluation follows the defined scoring criteria.
+
+# Regression Tests
+
+Run representative test cases whenever prompts or models change.
+
+# Human Review
+
+Important evaluation behavior should be manually reviewed during MVP development.
+
+## 11.23 AI Safety and Responsible Use
+
+CareerGraph AI should:
+
+- Avoid making guaranteed hiring claims.
+- Avoid inventing candidate experience.
+- Distinguish evidence from inference.
+- Avoid using confidential employer information.
+- Protect candidate data.
+- Avoid exposing sensitive information unnecessarily.
+- Provide transparent reasons for recommendations.
+- Allow the user to understand why an area was identified as a gap.
+- Treat AI-generated assessments as guidance rather than objective truth.
+
+## 11.24 MVP AI Boundary
+
+The MVP will prioritize AI usage for:
+```text
+Resume
+  ↓
+Profile Extraction
+
+
+Job Description
+  ↓
+Requirement Extraction
+
+
+Candidate + Target
+  ↓
+Skill Gap Analysis
+
+
+Target + Skill Gaps + History
+  ↓
+Next Best Action
+
+
+Interview Context
+  ↓
+Adaptive Interview
+
+
+Interview Evidence + Rubric
+  ↓
+Evaluation
+
+
+Evaluation + Updated Evidence
+  ↓
+Recommendation
+```
+Normal software logic will remain responsible for:
+```text
+Authentication
+Database
+API
+Validation
+Workflow State
+Permissions
+Persistence
+Error Handling
+Analytics
+```
+## 11.25 AI Architecture Success Criteria
+
+The AI architecture will be considered successful when:
+
+- Each agent has a clearly defined AI responsibility.
+- Agent inputs and outputs are structured.
+- AI outputs can be validated.
+- Important evaluations are evidence-based.
+- Prompt versions are traceable.
+- AI failures are recoverable.
+- Model usage is controlled.
+- Candidate context is minimized.
+- Gemini credentials remain secure.
+- The complete CareerGraph feedback loop can operate using the defined AI architecture.
+
+The MVP should demonstrate that AI is being used for meaningful reasoning and personalization rather than being added only for the appearance of an agentic architecture.
