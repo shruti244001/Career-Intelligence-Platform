@@ -1120,3 +1120,511 @@ The evaluation system must:
 - Keep score thresholds configurable.
 - Avoid presenting internal scores as objective measurements of a person's overall ability.
 
+## 6. Coding Evaluation Rubric
+
+The Coding Evaluation Rubric defines how Career-Intelligence-Platform evaluates candidate performance during coding interviews.
+
+Coding evaluation should measure both the candidate's final solution and the reasoning process used to reach that solution.
+
+The rubric should evaluate observable evidence across predefined dimensions rather than relying on a single unrestricted AI-generated score.
+
+### 6.1 Coding Evaluation Dimensions
+
+The initial coding rubric contains the following dimensions:
+
+| Dimension | Description |
+|---|---|
+| Problem Understanding | Ability to understand the problem, identify requirements, constraints, and edge cases. |
+| Approach | Ability to develop and explain a reasonable solution strategy. |
+| Algorithm and Data Structure Selection | Ability to select appropriate algorithms and data structures. |
+| Correctness | Ability to produce a logically correct solution and handle relevant cases. |
+| Complexity Analysis | Ability to identify and explain time and space complexity. |
+| Code Quality | Readability, structure, maintainability, naming, and implementation quality. |
+| Communication | Ability to clearly explain reasoning, decisions, and trade-offs. |
+
+### 6.2 Proposed Dimension Weights
+
+The initial coding rubric uses the following weights:
+
+| Dimension | Weight |
+|---|---:|
+| Problem Understanding | 10% |
+| Approach | 15% |
+| Algorithm and Data Structure Selection | 20% |
+| Correctness | 25% |
+| Complexity Analysis | 10% |
+| Code Quality | 10% |
+| Communication | 10% |
+| **Total** | **100%** |
+
+These weights are configuration values and may be refined during implementation and validation.
+
+The application must perform the weighted aggregation deterministically.
+
+### 6.3 Problem Understanding
+
+The evaluator should assess whether the candidate:
+
+- Understands the problem statement.
+- Identifies important constraints.
+- Clarifies ambiguous requirements.
+- Identifies relevant edge cases.
+- Restates the problem accurately.
+- Understands the expected input and output.
+
+Example evidence:
+
+> Candidate correctly identifies that duplicate values are allowed and clarifies whether the result should contain indices or values.
+
+Possible weaknesses:
+
+- Misunderstands the problem.
+- Ignores important constraints.
+- Does not identify relevant edge cases.
+- Proceeds with an incorrect interpretation.
+
+### 6.4 Approach
+
+The evaluator should assess whether the candidate develops a coherent solution strategy.
+
+Evidence may include:
+
+- Step-by-step reasoning.
+- Appropriate decomposition of the problem.
+- Identification of useful patterns.
+- Consideration of alternative approaches.
+- Explanation of why the selected approach is appropriate.
+
+A candidate does not need to identify the theoretically optimal approach immediately if they demonstrate meaningful reasoning and improve the approach appropriately during the interview.
+
+### 6.5 Algorithm and Data Structure Selection
+
+The evaluator should assess whether the candidate selects appropriate algorithms and data structures for the problem.
+
+Examples include:
+
+- Hash maps for efficient lookup.
+- Stacks for nested or monotonic processing.
+- Queues for BFS.
+- Heaps for priority-based processing.
+- Graph traversal algorithms for graph problems.
+- Dynamic programming for overlapping subproblems.
+- Appropriate sorting or searching techniques.
+
+The evaluator should consider whether the candidate can explain why a selected data structure or algorithm is appropriate.
+
+Incorrect selection should reduce the evaluation only when sufficient evidence demonstrates that the choice negatively affects the solution.
+
+### 6.6 Correctness
+
+Correctness measures whether the candidate's solution produces the expected result.
+
+The evaluator should consider:
+
+- Logical correctness.
+- Handling of normal cases.
+- Edge-case handling.
+- Completeness.
+- Consistency between the explanation and implementation.
+- Correct use of selected algorithms and data structures.
+
+Where executable code is available, automated test results should be treated as strong evidence for correctness.
+
+The system should distinguish between:
+
+- Compilation or syntax failure.
+- Runtime failure.
+- Incorrect output.
+- Partial correctness.
+- Correct implementation.
+
+LLM interpretation should supplement automated execution evidence rather than replace it.
+
+### 6.7 Complexity Analysis
+
+The evaluator should assess whether the candidate correctly understands:
+
+- Time complexity.
+- Space complexity.
+- Relevant trade-offs.
+- Impact of input size.
+- Why the selected approach has its complexity.
+
+For example:
+
+```text
+Candidate claims:
+Time = O(n)
+
+Actual implementation:
+Time = O(n²)
+```
+
+This should produce evidence of an inconsistency in complexity analysis.
+
+The candidate may still receive credit for other dimensions if the solution itself is correct.
+
+### 6.8 Code Quality
+
+Code quality may include:
+
+- Readable naming
+- Clear structure
+- Appropriate decomposition
+- Reasonable use of functions or classes
+- Avoidance of unnecessary complexity
+- Maintainability
+- Consistency with the selected approach
+
+Code quality should not dominate correctness.
+
+A correct but slightly verbose implementation should not automatically receive a poor overall evaluation.
+
+### 6.9 Communication
+
+Communication measures how effectively the candidate communicates technical reasoning.
+
+The evaluator may consider:
+
+- Clarity
+- Logical explanation
+- Ability to explain decisions
+- Ability to respond to follow-up questions
+- Ability to discuss trade-offs
+- Ability to communicate complexity
+
+Communication evaluation should focus on technical communication within the interview.
+
+It must not make judgments about unrelated personality characteristics.
+
+### 6.10 Dimension Score Scale
+
+Each dimension should use the numerical scale defined in Section 5.
+
+For example:
+```text
+Problem Understanding       → 75
+Approach                   → 70
+Algorithm/Data Structure   → 80
+Correctness                → 90
+Complexity Analysis        → 55
+Code Quality               → 72
+Communication              → 78
+```
+The evaluator should also provide:
+
+- Evidence
+- Proficiency state
+- Confidence
+- Evidence coverage
+
+### 6.11 Evidence Requirements
+
+Each dimension score should be supported by observable evidence.
+
+Conceptually:
+```text
+Dimension
+   ↓
+Observed Evidence
+   ↓
+Evaluation
+   ↓
+Score + Proficiency
+```
+For example:
+```text
+Dimension:
+Complexity Analysis
+
+
+Evidence:
+"Candidate correctly identified the time complexity
+of the hash-map solution as O(n), but incorrectly
+described the auxiliary space as O(1)."
+
+
+Evaluation:
+Partial understanding
+
+
+Score:
+55
+
+
+State:
+Developing
+```
+The system should avoid generating unsupported explanations that are not grounded in the candidate's actual response or code.
+
+### 6.12 Coding Assistance
+
+The interview may include controlled interviewer assistance such as:
+
+- Clarifying the problem statement.
+- Answering explicitly allowed clarification questions.
+- Providing limited hints.
+- Asking the candidate to explain their reasoning.
+- Asking follow-up questions.
+
+Assistance should be recorded as interview context where relevant.
+
+The evaluation should distinguish between:
+```text
+Independent demonstration
+```
+and:
+```text
+Demonstration after substantial assistance
+```
+Receiving assistance may affect the evaluation of relevant dimensions.
+
+### 6.13 Hint Usage
+
+If hints are provided, the system should record:
+
+- Whether a hint was provided
+- Hint type
+- Hint severity
+- When the hint was provided
+- Candidate response after the hint
+
+Example:
+```text
+No hint
+→ Independent solution
+
+
+Minor hint
+→ Candidate progresses independently
+
+
+Major hint
+→ Candidate requires substantial guidance
+```
+Hint usage should not automatically produce a fixed penalty.
+
+Its effect should depend on the competency being evaluated and the amount of assistance required.
+
+### 6.14 Interview Difficulty
+
+Coding questions should have a configured difficulty level.
+
+Initial difficulty categories may include:
+
+- Easy
+- Medium
+- Hard
+
+Difficulty should be stored as metadata and considered when interpreting performance.
+
+For example:
+```text
+Medium problem + independent correct solution
+```
+provides different evidence from:
+```text
+Easy problem + heavily assisted solution
+```
+Difficulty should therefore be considered as context rather than directly added to the candidate's score.
+
+### 6.15 Automated Code Execution
+
+If executable coding is included in the MVP, the platform should use controlled execution rather than relying solely on LLM interpretation.
+
+The execution system should ideally capture:
+
+- Compilation result.
+- Test-case results.
+- Runtime errors.
+- Timeouts.
+- Memory-related failures where available.
+- Final output.
+- Execution metadata.
+
+Automated execution must be isolated from the application environment.
+
+The exact execution sandbox, supported languages, resource limits, and security model are implementation decisions that must be finalized before enabling arbitrary code execution.
+
+### 6.16 Partial Solutions
+
+A candidate may provide a partially correct solution.
+
+The evaluator should distinguish between:
+
+- Correct solution.
+- Mostly correct solution with minor issues.
+- Correct approach with implementation errors.
+- Correct implementation for limited cases.
+- Incorrect approach.
+- No meaningful solution.
+
+A partial solution should not automatically receive the same evaluation as a completely incorrect solution.
+
+### 6.17 Follow-Up Questions
+
+The interviewer may use follow-up questions to gather additional evidence.
+
+Examples:
+```text
+"Can you explain why this data structure is appropriate?"
+"What is the time complexity?"
+"How would you handle this edge case?"
+"Can you improve the space complexity?"
+"What happens if the input size becomes very large?"
+```
+Follow-up responses should become additional evidence for the relevant competency dimensions.
+
+### 6.18 Coding Evaluation Output
+
+A completed coding evaluation should produce a structured result containing, at minimum:
+```text
+Interview ID
+Question ID
+Target ID
+
+
+Dimension Results:
+- Problem Understanding
+- Approach
+- Algorithm/Data Structure Selection
+- Correctness
+- Complexity Analysis
+- Code Quality
+- Communication
+
+
+For each dimension:
+- Score
+- Proficiency state
+- Evidence
+- Confidence
+- Evidence coverage
+
+
+Overall coding evaluation:
+- Weighted score
+- Overall proficiency
+- Strengths
+- Improvement areas
+- Skill implications
+- Recommended next action
+```
+The exact API schema will be defined during implementation.
+
+### 6.19 Coding Evaluation Flow
+
+The conceptual evaluation flow is:
+```text
+Candidate receives coding problem
+             ↓
+Candidate explains understanding
+             ↓
+Candidate proposes approach
+             ↓
+Candidate writes solution
+             ↓
+Candidate explains complexity
+             ↓
+Automated execution (if enabled)
+             ↓
+Follow-up questions
+             ↓
+Evidence extraction
+             ↓
+Dimension-level evaluation
+             ↓
+Deterministic weighted aggregation
+             ↓
+Coding proficiency state
+             ↓
+Skill-state update
+             ↓
+Next Best Action
+```
+### 6.20 Coding Evaluation Guardrails
+
+The coding evaluator must:
+
+- Use the predefined rubric.
+- Ground evaluations in candidate evidence.
+- Separate dimension-level evaluation from overall aggregation.
+- Use automated execution evidence when available.
+- Record hint and assistance usage.
+- Consider question difficulty as context.
+- Preserve historical evaluations.
+- Distinguish insufficient evidence from poor performance.
+- Avoid personality judgments.
+- Avoid unsupported claims.
+- Never convert a coding score into a hiring probability.
+- Keep scoring weights configurable.
+- Allow deterministic application logic to perform final aggregation.
+
+### 6.21 Example Coding Evaluation
+
+Example:
+```text
+Target:
+SDE-1
+
+
+Problem:
+Medium-level graph traversal problem
+
+
+Candidate performance:
+
+
+Problem Understanding:
+Candidate correctly identifies the graph structure
+and clarifies traversal requirements.
+
+
+Approach:
+Candidate proposes BFS and explains why it is suitable.
+
+
+Algorithm/Data Structure:
+Candidate correctly uses a queue and visited set.
+
+
+Correctness:
+Solution passes the provided test cases but initially
+misses one edge case, which is corrected after discussion.
+
+
+Complexity:
+Candidate correctly identifies O(V + E) time complexity
+but incorrectly estimates auxiliary space.
+
+
+Code Quality:
+Implementation is readable with reasonable naming.
+
+
+Communication:
+Candidate clearly explains the main approach and responds
+well to follow-up questions.
+
+
+Evaluation:
+
+
+Problem Understanding → 80 → Proficient
+Approach → 82 → Strong
+Algorithm/Data Structure → 85 → Strong
+Correctness → 78 → Proficient
+Complexity Analysis → 55 → Developing
+Code Quality → 75 → Proficient
+Communication → 80 → Strong
+
+
+Primary Gap:
+Complexity analysis
+
+
+Recommended Next Action:
+Practice time and space complexity analysis for graph
+algorithms and explain complexity before finalizing solutions.
+```
+The example is illustrative only. Production evaluations must be generated from actual candidate evidence and the configured rubric.
