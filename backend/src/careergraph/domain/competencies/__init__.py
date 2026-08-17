@@ -1,0 +1,2 @@
+"""Competency domain concepts."""
+

@@ -1,0 +1,2 @@
+"""CareerGraph AI backend package."""
+
