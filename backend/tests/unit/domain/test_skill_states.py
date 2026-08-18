@@ -27,9 +27,10 @@ from careergraph.domain.types import (
 
 
 def test_skill_state_insufficient_evidence_requires_none_score() -> None:
-    """Verify that SkillState with INSUFFICIENT_EVIDENCE requires score=None."""
+    """Verify that insufficient evidence requires score=None."""
     with pytest.raises(
-        ValidationError, match="INSUFFICIENT_EVIDENCE state requires score to be None"
+        ValidationError,
+        match="INSUFFICIENT_EVIDENCE state requires score to be None",
     ):
         SkillState(
             id=uuid4(),
@@ -43,9 +44,10 @@ def test_skill_state_insufficient_evidence_requires_none_score() -> None:
 
 
 def test_skill_gap_insufficient_evidence_priority_must_be_none() -> None:
-    """Verify that SkillGap with INSUFFICIENT_EVIDENCE enforces priority=None."""
+    """Verify insufficient evidence requires priority=None."""
     with pytest.raises(
-        ValidationError, match="insufficient evidence skill gap priority must be None"
+        ValidationError,
+        match="insufficient evidence skill gap priority must be None",
     ):
         SkillGap(
             id=uuid4(),
@@ -134,6 +136,82 @@ def test_evaluate_skill_gap_below_target() -> None:
 
     assert gap.classification is SkillGapClassification.BELOW_TARGET
     assert gap.priority is GapPriority.HIGH
+
+
+def test_evaluate_skill_gap_below_target_medium_priority() -> None:
+    """Verify a one-level gap with moderate importance gets medium priority."""
+    comp_id = uuid4()
+    candidate_id = uuid4()
+    target_id = uuid4()
+
+    state = SkillState(
+        id=uuid4(),
+        candidate_id=candidate_id,
+        competency_id=comp_id,
+        proficiency=ProficiencyState.DEVELOPING,
+        score=Decimal("50"),
+        evidence_coverage=EvidenceCoverage.SUFFICIENT,
+        last_evaluated_at=datetime.now(UTC),
+    )
+
+    expectation = TargetCompetencyExpectation(
+        id=uuid4(),
+        target_id=target_id,
+        competency_id=comp_id,
+        expected_proficiency=ProficiencyState.PROFICIENT,
+        importance_weight=Decimal("0.5"),
+        evidence_requirement=EvidenceRequirement(
+            minimum_strength=EvidenceStrength.MODERATE,
+            minimum_count=1,
+        ),
+    )
+
+    gap = evaluate_skill_gap(
+        skill_state=state,
+        expectation=expectation,
+        gap_id=uuid4(),
+    )
+
+    assert gap.classification is SkillGapClassification.BELOW_TARGET
+    assert gap.priority is GapPriority.MEDIUM
+
+
+def test_evaluate_skill_gap_below_target_low_priority() -> None:
+    """Verify a small low-importance gap gets low priority."""
+    comp_id = uuid4()
+    candidate_id = uuid4()
+    target_id = uuid4()
+
+    state = SkillState(
+        id=uuid4(),
+        candidate_id=candidate_id,
+        competency_id=comp_id,
+        proficiency=ProficiencyState.DEVELOPING,
+        score=Decimal("50"),
+        evidence_coverage=EvidenceCoverage.SUFFICIENT,
+        last_evaluated_at=datetime.now(UTC),
+    )
+
+    expectation = TargetCompetencyExpectation(
+        id=uuid4(),
+        target_id=target_id,
+        competency_id=comp_id,
+        expected_proficiency=ProficiencyState.PROFICIENT,
+        importance_weight=Decimal("0.2"),
+        evidence_requirement=EvidenceRequirement(
+            minimum_strength=EvidenceStrength.MODERATE,
+            minimum_count=1,
+        ),
+    )
+
+    gap = evaluate_skill_gap(
+        skill_state=state,
+        expectation=expectation,
+        gap_id=uuid4(),
+    )
+
+    assert gap.classification is SkillGapClassification.BELOW_TARGET
+    assert gap.priority is GapPriority.MEDIUM
 
 
 def test_evaluate_skill_gap_meets_target() -> None:

@@ -36,7 +36,9 @@ class SkillState(BaseModel):
     score: Decimal | None = Field(default=None)
     evidence_coverage: EvidenceCoverage
     confidence: Decimal | None = Field(
-        default=None, ge=Decimal("0"), le=Decimal("1")
+        default=None,
+        ge=Decimal("0"),
+        le=Decimal("1"),
     )
     last_evaluated_at: datetime
     evidence_ids: tuple[UUID, ...] = ()
@@ -57,6 +59,7 @@ class SkillState(BaseModel):
 
         if self.score is not None:
             CANONICAL_SCORE_SCALE.validate_score(self.score)
+
         return self
 
 
@@ -83,7 +86,7 @@ class SkillGap(BaseModel):
 
     @model_validator(mode="after")
     def validate_insufficient_evidence_priority(self) -> "SkillGap":
-        """Enforce that INSUFFICIENT_EVIDENCE gaps have priority set to None."""
+        """Enforce priority rules for insufficient evidence."""
         if (
             self.classification is SkillGapClassification.INSUFFICIENT_EVIDENCE
             or self.current_proficiency is ProficiencyState.INSUFFICIENT_EVIDENCE
@@ -92,16 +95,19 @@ class SkillGap(BaseModel):
                 raise ValueError(
                     "INSUFFICIENT_EVIDENCE state requires matching gap classification"
                 )
+
             if self.priority is not None:
                 raise ValueError(
                     "insufficient evidence skill gap priority must be None"
                 )
+
             return self
 
         if self.priority is None:
             raise ValueError(
                 "evaluated skill gap with sufficient evidence must have a priority"
             )
+
         return self
 
 
@@ -111,14 +117,14 @@ def evaluate_skill_gap(
     gap_id: UUID,
     rationale: str | None = None,
 ) -> SkillGap:
-    """Deterministically compare a candidate's skill state against a target expectation.
+    """Deterministically compare skill state against target expectation.
 
     Rules:
     1. Competency IDs must match.
-    2. Insufficient evidence => classification = INSUFFICIENT_EVIDENCE, priority = None.
-    3. Below target => BELOW_TARGET (Priority based on gap size & weight).
-    4. Meets target => MEETS_TARGET (Priority = LOW).
-    5. Exceeds target => EXCEEDS_TARGET (Priority = LOW).
+    2. Insufficient evidence => INSUFFICIENT_EVIDENCE, priority=None.
+    3. Below target => BELOW_TARGET with priority based on gap size and weight.
+    4. Meets target => MEETS_TARGET, priority=LOW.
+    5. Exceeds target => EXCEEDS_TARGET, priority=LOW.
     """
     if skill_state.competency_id != expectation.competency_id:
         raise ValueError("skill state and expectation competency IDs must match")
@@ -142,15 +148,18 @@ def evaluate_skill_gap(
     if current_val < expected_val:
         classification = SkillGapClassification.BELOW_TARGET
         gap_size = expected_val - current_val
+
         if gap_size >= 2 or expectation.importance_weight >= Decimal("0.7"):
             priority = GapPriority.HIGH
         elif gap_size == 1 or expectation.importance_weight >= Decimal("0.4"):
             priority = GapPriority.MEDIUM
         else:
             priority = GapPriority.LOW
+
     elif current_val == expected_val:
         classification = SkillGapClassification.MEETS_TARGET
         priority = GapPriority.LOW
+
     else:
         classification = SkillGapClassification.EXCEEDS_TARGET
         priority = GapPriority.LOW
