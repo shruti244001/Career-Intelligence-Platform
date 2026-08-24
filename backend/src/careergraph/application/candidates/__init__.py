@@ -1,2 +1,0 @@
-"""Candidate application services."""
-
