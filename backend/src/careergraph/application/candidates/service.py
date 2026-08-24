@@ -9,6 +9,10 @@ from careergraph.domain.candidates.models import CandidateProfile
 class CandidateProfileService:
     """Manage candidate profile use cases."""
 
+    def __init__(self) -> None:
+        """Initialize the in-memory candidate store."""
+        self._candidates: dict[UUID, CandidateProfile] = {}
+
     def create_candidate(
         self,
         *,
@@ -21,10 +25,10 @@ class CandidateProfileService:
         projects: tuple[str, ...] = (),
         summary: str | None = None,
     ) -> CandidateProfile:
-        """Create a new candidate profile."""
+        """Create and store a new candidate profile."""
         candidate_id = uuid4()
 
-        return CandidateProfile(
+        candidate = CandidateProfile(
             id=uuid4(),
             candidate_id=candidate_id,
             name=name,
@@ -37,12 +41,19 @@ class CandidateProfileService:
             summary=summary,
         )
 
+        self._candidates[candidate_id] = candidate
+
+        return candidate
+
     def get_candidate(
         self,
-        candidate: CandidateProfile,
-    ) -> CandidateProfile:
+        candidate: CandidateProfile | UUID,
+    ) -> CandidateProfile | None:
         """Return an existing candidate profile."""
-        return candidate
+        if isinstance(candidate, CandidateProfile):
+            return candidate
+
+        return self._candidates.get(candidate)
 
     def update_candidate(
         self,
@@ -57,7 +68,7 @@ class CandidateProfileService:
         projects: tuple[str, ...] | None = None,
         summary: str | None = None,
     ) -> CandidateProfile:
-        """Return an updated immutable candidate profile."""
+        """Return and store an updated immutable candidate profile."""
         updates = candidate.model_dump()
 
         if name is not None:
@@ -77,8 +88,17 @@ class CandidateProfileService:
         if summary is not None:
             updates["summary"] = summary
 
-        return CandidateProfile.model_validate(updates)
+        updated_candidate = CandidateProfile.model_validate(updates)
 
-    def delete_candidate(self, candidate_id: UUID) -> UUID:
-        """Return the candidate identifier for deletion handling."""
+        self._candidates[updated_candidate.candidate_id] = updated_candidate
+
+        return updated_candidate
+
+    def delete_candidate(self, candidate_id: UUID) -> UUID | None:
+        """Delete a candidate and return its identifier."""
+        candidate = self._candidates.pop(candidate_id, None)
+
+        if candidate is None:
+            return None
+
         return candidate_id

@@ -2,11 +2,12 @@
 
 from fastapi import FastAPI
 
+from careergraph.api.routes.candidates import router as candidate_router
 from careergraph.api.routes.targets import router as target_router
 
 app = FastAPI(title="CareerGraph API")
 
-
+app.include_router(candidate_router)
 app.include_router(target_router)
 
 
