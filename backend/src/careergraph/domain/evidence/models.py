@@ -64,7 +64,11 @@ class Evidence(BaseModel):
     assessment_id: UUID | None = None
     metadata: dict[str, object] = Field(default_factory=dict)
 
-    _validate_content = field_validator("content")(non_empty)
+    @field_validator("content")
+    @classmethod
+    def validate_content(cls, value: str | None) -> str | None:
+        """Reject explicitly supplied empty content."""
+        return non_empty(value) if value is not None else None
     _validate_observed_at = field_validator("observed_at")(aware_datetime)
     _validate_recorded_at = field_validator("recorded_at")(aware_datetime)
 
