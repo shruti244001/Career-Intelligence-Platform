@@ -20,6 +20,17 @@ class AssessmentType(StrEnum):
     BEHAVIORAL = "behavioral"
     SYSTEM_DESIGN = "system_design"
 
+class InterviewStatus(StrEnum):
+    CREATED = "created"
+    IN_PROGRESS = "in_progress"
+    COMPLETED = "completed"
+    CANCELLED = "cancelled"
+
+
+class QuestionDifficulty(StrEnum):
+    EASY = "easy"
+    MEDIUM = "medium"
+    HARD = "hard"
 
 class EvidenceSource(StrEnum):
     RESUME = "resume"

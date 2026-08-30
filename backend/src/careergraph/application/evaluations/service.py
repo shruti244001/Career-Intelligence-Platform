@@ -18,6 +18,10 @@ from careergraph.domain.types import EvidenceCoverage, EvidenceStrength
 class EvaluationService:
     """Orchestrate deterministic evaluation of candidate evidence."""
 
+    def __init__(self) -> None:
+        """Initialize the in-memory evaluation store."""
+        self._evaluations: dict[UUID, WeightedEvaluation] = {}
+
     def evaluate(
         self,
         *,
@@ -27,23 +31,54 @@ class EvaluationService:
         evaluated_at: datetime,
         evaluation_id: UUID | None = None,
     ) -> WeightedEvaluation:
-        """Evaluate candidate evidence against a rubric.
+        """Evaluate and store candidate evidence against a rubric.
 
         Evidence is matched to rubric dimensions through competency IDs.
         Each dimension receives a deterministic evidence-coverage state and
         score, then the domain scoring function aggregates the results.
-        """
-        dimension_results = tuple(
-            self._evaluate_dimension(dimension, evidence)
-            for dimension in rubric.dimensions
-        )
 
-        return evaluate_weighted_rubric(
+        The resulting evaluation is stored as an immutable snapshot.
+        """
+
+        for item in evidence:
+            if item.candidate_id != candidate_id:
+                raise ValueError(
+                    "evidence candidate does not match evaluation candidate"
+                )
+
+        evaluation = evaluate_weighted_rubric(
             rubric=rubric,
-            dimension_results=dimension_results,
+            dimension_results=tuple(
+                self._evaluate_dimension(dimension, evidence)
+                for dimension in rubric.dimensions
+            ),
             candidate_id=candidate_id,
             evaluation_id=evaluation_id or uuid4(),
             evaluated_at=evaluated_at,
+        )
+
+        self._evaluations[evaluation.id] = evaluation
+
+        return evaluation
+
+    def get_evaluation(
+        self,
+        evaluation_id: UUID,
+    ) -> WeightedEvaluation | None:
+        """Return an evaluation by identifier."""
+
+        return self._evaluations.get(evaluation_id)
+
+    def list_candidate_evaluations(
+        self,
+        candidate_id: UUID,
+    ) -> Sequence[WeightedEvaluation]:
+        """Return all evaluations belonging to a candidate."""
+
+        return tuple(
+            evaluation
+            for evaluation in self._evaluations.values()
+            if evaluation.candidate_id == candidate_id
         )
 
     @staticmethod
@@ -114,6 +149,7 @@ class EvaluationService:
 
         Stronger evidence always satisfies a weaker requirement.
         """
+
         strength_rank = {
             EvidenceStrength.WEAK: 1,
             EvidenceStrength.MODERATE: 2,

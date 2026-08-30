@@ -1,8 +1,10 @@
 """Tests for the evaluation application service."""
-
+import pytest
 from datetime import UTC, datetime
 from decimal import Decimal
 from uuid import UUID, uuid4
+
+from pydantic import ValidationError
 
 from careergraph.application.evaluations.service import EvaluationService
 from careergraph.domain.evidence.models import (
@@ -300,3 +302,238 @@ def test_moderate_evidence_does_not_satisfy_strong_requirement() -> None:
     assert result.evidence_coverage is EvidenceCoverage.PARTIAL
     assert result.final_score == Decimal("60")
     assert result.overall_proficiency is ProficiencyState.PROFICIENT
+def test_evidence_for_other_candidate_is_rejected() -> None:
+    """Evidence belonging to another candidate must not affect evaluation."""
+
+    service = EvaluationService()
+
+    other_candidate_id = UUID(
+        "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
+    )
+
+    evidence = Evidence(
+        id=uuid4(),
+        candidate_id=other_candidate_id,
+        competency_id=COMPETENCY_ID,
+        source=EvidenceSource.RESUME,
+        evidence_type=EvidenceType.EXPLICIT,
+        content="Implemented a Python backend service.",
+        observed_at=datetime(
+            2026,
+            8,
+            19,
+            tzinfo=UTC,
+        ),
+        recorded_at=datetime(
+            2026,
+            8,
+            19,
+            tzinfo=UTC,
+        ),
+        provenance=EvidenceProvenance(
+            source_system="test",
+            source_record_id="resume-001",
+            extraction_method="test_fixture",
+        ),
+        confidence=Decimal("0.9"),
+        strength=EvidenceStrength.STRONG,
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="evidence candidate does not match evaluation candidate",
+    ):
+        service.evaluate(
+            candidate_id=CANDIDATE_ID,
+            rubric=make_rubric(),
+            evidence=(evidence,),
+            evaluated_at=datetime(
+                2026,
+                8,
+                19,
+                tzinfo=UTC,
+            ),
+            evaluation_id=EVALUATION_ID,
+        )
+def test_mixed_candidate_evidence_is_rejected() -> None:
+    """An evaluation must reject a mixed-candidate evidence set."""
+
+    service = EvaluationService()
+
+    other_candidate_id = UUID(
+        "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
+    )
+
+    valid_evidence = make_evidence()
+
+    invalid_evidence = Evidence(
+        id=uuid4(),
+        candidate_id=other_candidate_id,
+        competency_id=COMPETENCY_ID,
+        source=EvidenceSource.RESUME,
+        evidence_type=EvidenceType.EXPLICIT,
+        content="Implemented another Python service.",
+        observed_at=datetime(
+            2026,
+            8,
+            19,
+            tzinfo=UTC,
+        ),
+        recorded_at=datetime(
+            2026,
+            8,
+            19,
+            tzinfo=UTC,
+        ),
+        provenance=EvidenceProvenance(
+            source_system="test",
+            source_record_id="resume-002",
+            extraction_method="test_fixture",
+        ),
+        confidence=Decimal("0.8"),
+        strength=EvidenceStrength.MODERATE,
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="evidence candidate does not match evaluation candidate",
+    ):
+        service.evaluate(
+            candidate_id=CANDIDATE_ID,
+            rubric=make_rubric(),
+            evidence=(
+                valid_evidence,
+                invalid_evidence,
+            ),
+            evaluated_at=datetime(
+                2026,
+                8,
+                19,
+                tzinfo=UTC,
+            ),
+            evaluation_id=EVALUATION_ID,
+        )
+def test_evaluation_is_stored() -> None:
+    """An evaluated result should be stored by the service."""
+
+    service = EvaluationService()
+
+    result = service.evaluate(
+        candidate_id=CANDIDATE_ID,
+        rubric=make_rubric(),
+        evidence=(make_evidence(),),
+        evaluated_at=datetime(
+            2026,
+            8,
+            19,
+            tzinfo=UTC,
+        ),
+        evaluation_id=EVALUATION_ID,
+    )
+
+    assert service.get_evaluation(EVALUATION_ID) == result
+
+
+def test_get_missing_evaluation_returns_none() -> None:
+    """Unknown evaluation identifiers should return None."""
+
+    service = EvaluationService()
+
+    result = service.get_evaluation(EVALUATION_ID)
+
+    assert result is None
+
+
+def test_list_candidate_evaluations_returns_only_matching_candidate() -> None:
+    """Candidate evaluation listing should isolate candidates."""
+
+    service = EvaluationService()
+
+    first = service.evaluate(
+        candidate_id=CANDIDATE_ID,
+        rubric=make_rubric(),
+        evidence=(make_evidence(),),
+        evaluated_at=datetime(
+            2026,
+            8,
+            19,
+            tzinfo=UTC,
+        ),
+        evaluation_id=EVALUATION_ID,
+    )
+
+    other_candidate_id = UUID(
+        "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
+    )
+
+    other_evidence = Evidence(
+        id=uuid4(),
+        candidate_id=other_candidate_id,
+        competency_id=COMPETENCY_ID,
+        source=EvidenceSource.RESUME,
+        evidence_type=EvidenceType.EXPLICIT,
+        content="Implemented a Python backend service.",
+        observed_at=datetime(
+            2026,
+            8,
+            19,
+            tzinfo=UTC,
+        ),
+        recorded_at=datetime(
+            2026,
+            8,
+            19,
+            tzinfo=UTC,
+        ),
+        provenance=EvidenceProvenance(
+            source_system="test",
+            source_record_id="resume-002",
+            extraction_method="test_fixture",
+        ),
+        confidence=Decimal("0.8"),
+        strength=EvidenceStrength.STRONG,
+    )
+
+    other = service.evaluate(
+        candidate_id=other_candidate_id,
+        rubric=make_rubric(),
+        evidence=(other_evidence,),
+        evaluated_at=datetime(
+            2026,
+            8,
+            19,
+            tzinfo=UTC,
+        ),
+        evaluation_id=UUID(
+            "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
+        ),
+    )
+
+    result = service.list_candidate_evaluations(CANDIDATE_ID)
+
+    assert result == (first,)
+    assert other not in result
+
+
+def test_evaluation_snapshot_is_immutable() -> None:
+    """Stored evaluations should remain immutable snapshots."""
+
+    service = EvaluationService()
+
+    result = service.evaluate(
+        candidate_id=CANDIDATE_ID,
+        rubric=make_rubric(),
+        evidence=(make_evidence(),),
+        evaluated_at=datetime(
+            2026,
+            8,
+            19,
+            tzinfo=UTC,
+        ),
+        evaluation_id=EVALUATION_ID,
+    )
+
+    assert result is service.get_evaluation(EVALUATION_ID)
+
+    with pytest.raises(ValidationError):
+        result.final_score = Decimal("100")
