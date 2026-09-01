@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from uuid import uuid4
 
 import pytest
@@ -34,13 +34,13 @@ def test_interview_session_rejects_completion_without_start():
             candidate_id=uuid4(),
             target_id=uuid4(),
             assessment_type=AssessmentType.CODING,
-            completed_at=datetime.now(timezone.utc),
+            completed_at=datetime.now(UTC),
         )
 
 
 def test_interview_session_rejects_invalid_timestamp_order():
-    started_at = datetime(2026, 8, 31, 10, 0, tzinfo=timezone.utc)
-    completed_at = datetime(2026, 8, 31, 9, 0, tzinfo=timezone.utc)
+    started_at = datetime(2026, 8, 31, 10, 0, tzinfo=UTC)
+    completed_at = datetime(2026, 8, 31, 9, 0, tzinfo=UTC)
 
     with pytest.raises(ValidationError):
         InterviewSession(
@@ -62,7 +62,7 @@ def test_interview_question_requires_positive_sequence():
             competency_id=uuid4(),
             question="Explain BFS.",
             difficulty=QuestionDifficulty.EASY,
-            asked_at=datetime.now(timezone.utc),
+            asked_at=datetime.now(UTC),
         )
 
 
@@ -74,7 +74,7 @@ def test_interview_question_can_be_created():
         competency_id=uuid4(),
         question="Explain BFS.",
         difficulty=QuestionDifficulty.EASY,
-        asked_at=datetime.now(timezone.utc),
+        asked_at=datetime.now(UTC),
     )
 
     assert question.sequence == 1
@@ -86,7 +86,7 @@ def test_interview_response_can_be_created():
         interview_id=uuid4(),
         question_id=uuid4(),
         response="I would use a queue for BFS.",
-        responded_at=datetime.now(timezone.utc),
+        responded_at=datetime.now(UTC),
     )
 
     assert response.code is None
@@ -99,5 +99,5 @@ def test_interview_response_rejects_empty_response():
             interview_id=uuid4(),
             question_id=uuid4(),
             response="   ",
-            responded_at=datetime.now(timezone.utc),
+            responded_at=datetime.now(UTC),
         )

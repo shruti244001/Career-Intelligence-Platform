@@ -1,6 +1,5 @@
 """Application service for evaluating completed interview sessions."""
 
-from collections.abc import Sequence
 from datetime import datetime
 from decimal import Decimal
 from uuid import UUID

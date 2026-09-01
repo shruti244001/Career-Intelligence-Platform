@@ -6,13 +6,13 @@ from uuid import UUID
 
 import pytest
 
-from careergraph.application.evidence.service import EvidenceService
 from careergraph.application.evaluations.service import EvaluationService
-from careergraph.application.interviews.evidence import (
-    InterviewEvidenceService,
-)
+from careergraph.application.evidence.service import EvidenceService
 from careergraph.application.interviews.evaluation import (
     InterviewEvaluationService,
+)
+from careergraph.application.interviews.evidence import (
+    InterviewEvidenceService,
 )
 from careergraph.application.interviews.service import InterviewService
 from careergraph.domain.rubrics.models import (
@@ -26,7 +26,6 @@ from careergraph.domain.types import (
     ProficiencyState,
     QuestionDifficulty,
 )
-
 
 CANDIDATE_ID = UUID(
     "11111111-1111-1111-1111-111111111111"
@@ -168,7 +167,7 @@ def create_fixture() -> tuple[
 def complete_interview() -> None:
     """Complete the fixture interview."""
 
-    interview_service = InterviewService()
+    #interview_service = InterviewService()
 
 def test_completed_interview_is_evaluated() -> None:
     """A completed interview should produce a weighted evaluation."""

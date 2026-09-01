@@ -3,8 +3,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from careergraph.api.routes.evidence import router as evidence_router
 from careergraph.api.routes.candidates import router as candidate_router
+from careergraph.api.routes.evidence import router as evidence_router
 from careergraph.api.routes.targets import router as target_router
 
 app = FastAPI(title="CareerGraph API")

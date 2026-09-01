@@ -1,9 +1,9 @@
 """Tests for the evaluation application service."""
-import pytest
 from datetime import UTC, datetime
 from decimal import Decimal
 from uuid import UUID, uuid4
 
+import pytest
 from pydantic import ValidationError
 
 from careergraph.application.evaluations.service import EvaluationService

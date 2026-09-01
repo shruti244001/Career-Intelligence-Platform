@@ -1,6 +1,6 @@
 """Tests for candidate evidence API endpoints."""
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from uuid import uuid4
 
 from fastapi.testclient import TestClient
@@ -24,8 +24,8 @@ def make_evidence_payload() -> dict:
         "source": "resume",
         "evidence_type": "explicit",
         "content": "Implemented a Python backend service.",
-        "observed_at": datetime.now(timezone.utc).isoformat(),
-        "recorded_at": datetime.now(timezone.utc).isoformat(),
+        "observed_at": datetime.now(UTC).isoformat(),
+        "recorded_at": datetime.now(UTC).isoformat(),
         "provenance": {
             "source_system": "careergraph",
             "source_record_id": "resume-001",

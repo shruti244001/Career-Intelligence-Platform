@@ -1,7 +1,8 @@
 """Tests for the interview application service."""
-import pytest
 from datetime import UTC, datetime
 from uuid import UUID
+
+import pytest
 
 from careergraph.application.interviews.service import InterviewService
 from careergraph.domain.types import (
