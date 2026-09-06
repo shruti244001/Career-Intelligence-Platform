@@ -458,7 +458,76 @@ For example:
 ```text
 "Practice graph traversal problems because recent coding assessments show inconsistent BFS/DFS implementation and the target SDE-1 competency profile requires stronger graph problem-solving."
 ```
-### 3.12 Evidence Privacy
+### 3.12 Interview Planning
+
+Interview planning is derived from the deterministic skill-gap and recommendation state.
+
+The `InterviewPlanner` selects the next competency and question difficulty using:
+
+- Current skill-gap classification and priority.
+- Target competency importance.
+- Applicable assessment type.
+- Next-best-action recommendation.
+
+The planner does not generate question text.
+
+The interview planning flow is:
+
+```text
+Skill Gap
+    |
+    v
+Recommendation
+    |
+    v
+InterviewPlanner
+    |
+    v
+InterviewPlan
+    |
+    v
+Interview Question Generation
+```
+The planner should apply deterministic rules when converting the current candidate state into an interview plan.
+
+Initial planning rules include:
+
+- INSUFFICIENT_EVIDENCE → evidence-gathering interview action.
+- BELOW_TARGET → targeted-practice interview action.
+- HIGH priority → hard question difficulty.
+- MEDIUM priority → medium question difficulty.
+- LOW priority → easy question difficulty.
+
+The planner should also respect:
+
+- Target competency importance.
+- Applicable assessment type.
+- Current skill-gap context.
+- Next-best-action recommendation.
+
+Each InterviewPlan should retain references to the source skill gap and source recommendation where available.
+
+This preserves traceability from:
+```text
+Evidence
+    ↓
+Skill State
+    ↓
+Skill Gap
+    ↓
+Recommendation
+    ↓
+Interview Plan
+    ↓
+Interview Question
+    ↓
+New Evidence
+```
+Question wording, question generation, and adaptive natural-language interaction remain outside the deterministic planning layer and may be handled by the Gemini / Google ADK interview workflow.
+
+The planner must not independently evaluate the candidate or replace the defined evaluation rubric.
+
+### 3.13 Evidence Privacy
 
 Candidate evidence may contain sensitive personal or professional information.
 
@@ -471,7 +540,7 @@ The platform should:
 - Follow the project's authentication, authorization, and data-retention rules.
 - Never use confidential employer information as test data.
 
-### 3.13 Evidence Quality Guardrail
+### 3.14 Evidence Quality Guardrail
 
 The system must distinguish between:
 
