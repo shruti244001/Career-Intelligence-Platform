@@ -2956,6 +2956,46 @@ The backend is responsible for:
 ## 10.6 Backend Service Boundaries
 
 The backend should be logically divided into services/modules.
+### Interview Planning
+
+Interview planning is implemented as a deterministic application service.
+
+The `InterviewPlanner` selects the next competency and question difficulty using:
+
+- Current skill-gap classification and priority.
+- Target competency importance.
+- Applicable assessment type.
+- Next-best-action recommendation.
+
+The planner does not generate question text.
+
+The interview planning boundary is:
+
+```text
+Skill Gap
+    |
+    v
+Recommendation
+    |
+    v
+InterviewPlanner
+    |
+    v
+InterviewPlan
+    |
+    v
+Gemini / Google ADK
+    |
+    v
+Generated Interview Question
+    |
+    v
+InterviewService
+```
+The InterviewPlan retains references to both the source skill gap and source recommendation to preserve decision traceability.
+
+Deterministic candidate-state decisions, prioritization, and evaluation remain in the application/domain layers, while generative interview content is delegated to the AI layer.
+
 
 Recommended structure:
 ```text
