@@ -170,7 +170,12 @@ def test_add_and_list_questions() -> None:
 
     service = InterviewService()
 
-    create_test_interview(service)
+    interview = create_test_interview(service)
+
+    service.start_interview(
+        interview,
+        started_at=STARTED_AT,
+    )
 
     question = service.add_question(
         question_id=QUESTION_ID,
@@ -195,7 +200,12 @@ def test_add_and_list_response() -> None:
 
     service = InterviewService()
 
-    create_test_interview(service)
+    interview = create_test_interview(service)
+
+    service.start_interview(
+        interview,
+        started_at=STARTED_AT,
+    )
 
     service.add_question(
         question_id=QUESTION_ID,
@@ -228,7 +238,12 @@ def test_add_coding_response() -> None:
 
     service = InterviewService()
 
-    create_test_interview(service)
+    interview = create_test_interview(service)
+
+    service.start_interview(
+        interview,
+        started_at=STARTED_AT,
+    )
 
     service.add_question(
         question_id=QUESTION_ID,
@@ -286,13 +301,17 @@ def test_add_response_requires_existing_question() -> None:
 
     service = InterviewService()
 
-    service.create_interview(
+    interview = service.create_interview(
         interview_id=INTERVIEW_ID,
         candidate_id=CANDIDATE_ID,
         target_id=TARGET_ID,
         assessment_type=AssessmentType.CODING,
     )
 
+    service.start_interview(
+        interview,
+        started_at=STARTED_AT,
+    )
     with pytest.raises(ValueError, match="question does not exist"):
         service.add_response(
             interview_id=INTERVIEW_ID,
@@ -317,6 +336,15 @@ def test_response_question_must_belong_to_same_interview() -> None:
         candidate_id=CANDIDATE_ID,
         target_id=TARGET_ID,
         assessment_type=AssessmentType.CODING,
+    )
+    first_interview = service.start_interview(
+        first_interview,
+        started_at=STARTED_AT,
+    )
+
+    second_interview = service.start_interview(
+        second_interview,
+        started_at=STARTED_AT,
     )
 
     question = service.add_question(
@@ -516,3 +544,108 @@ def test_stale_interview_cannot_overwrite_current_state() -> None:
 
     assert current is not None
     assert current.status is InterviewStatus.IN_PROGRESS
+def test_cannot_add_question_to_created_interview() -> None:
+    """Questions require an in-progress interview."""
+
+    service = InterviewService()
+
+    create_test_interview(service)
+
+    with pytest.raises(
+        ValueError,
+        match="questions can only be added to in-progress interviews",
+    ):
+        service.add_question(
+            interview_id=INTERVIEW_ID,
+            competency_id=COMPETENCY_ID,
+            question="Explain Python dictionaries.",
+            difficulty=QuestionDifficulty.EASY,
+            asked_at=STARTED_AT,
+            sequence=1,
+        )
+
+
+def test_cannot_add_response_to_created_interview() -> None:
+    """Responses require an in-progress interview."""
+
+    service = InterviewService()
+
+    create_test_interview(service)
+
+    with pytest.raises(
+        ValueError,
+        match="responses can only be added to in-progress interviews",
+    ):
+        service.add_response(
+            interview_id=INTERVIEW_ID,
+            question_id=QUESTION_ID,
+            response="A dictionary stores key-value pairs.",
+            responded_at=COMPLETED_AT,
+        )
+
+
+def test_cannot_add_question_to_completed_interview() -> None:
+    """Completed interviews cannot receive new questions."""
+
+    service = InterviewService()
+
+    interview = create_test_interview(service)
+
+    started = service.start_interview(
+        interview,
+        started_at=STARTED_AT,
+    )
+
+    service.complete_interview(
+        started,
+        completed_at=COMPLETED_AT,
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="questions can only be added to in-progress interviews",
+    ):
+        service.add_question(
+            interview_id=INTERVIEW_ID,
+            competency_id=COMPETENCY_ID,
+            question="Explain Python dictionaries.",
+            difficulty=QuestionDifficulty.EASY,
+            asked_at=COMPLETED_AT,
+            sequence=1,
+        )
+def test_cannot_add_response_to_completed_interview() -> None:
+    """Completed interviews cannot receive new responses."""
+
+    service = InterviewService()
+
+    interview = create_test_interview(service)
+
+    started = service.start_interview(
+        interview,
+        started_at=STARTED_AT,
+    )
+
+    service.add_question(
+        interview_id=INTERVIEW_ID,
+        competency_id=COMPETENCY_ID,
+        question="Explain Python dictionaries.",
+        difficulty=QuestionDifficulty.EASY,
+        asked_at=STARTED_AT,
+        sequence=1,
+    )
+
+    service.complete_interview(
+        started,
+        completed_at=COMPLETED_AT,
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="responses can only be added to in-progress interviews",
+    ):
+        service.add_response(
+            interview_id=INTERVIEW_ID,
+            question_id=QUESTION_ID,
+            response="A dictionary stores key-value pairs.",
+            responded_at=COMPLETED_AT,
+        )

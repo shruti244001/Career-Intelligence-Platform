@@ -189,8 +189,15 @@ class InterviewService:
         question_id: UUID | None = None,
     ) -> InterviewQuestion:
         """Create and store an interview question."""
-        if interview_id not in self._interviews:
+        interview = self._interviews.get(interview_id)
+
+        if interview is None:
             raise ValueError("interview does not exist")
+
+        if interview.status is not InterviewStatus.IN_PROGRESS:
+            raise ValueError(
+                "questions can only be added to in-progress interviews"
+            )
 
         interview_question = InterviewQuestion(
             id=question_id or uuid4(),
@@ -238,8 +245,15 @@ class InterviewService:
         response_id: UUID | None = None,
     ) -> InterviewResponse:
         """Create and store a candidate response."""
-        if interview_id not in self._interviews:
+        interview = self._interviews.get(interview_id)
+
+        if interview is None:
             raise ValueError("interview does not exist")
+
+        if interview.status is not InterviewStatus.IN_PROGRESS:
+            raise ValueError(
+                "responses can only be added to in-progress interviews"
+            )
 
         question = self._questions.get(question_id)
 

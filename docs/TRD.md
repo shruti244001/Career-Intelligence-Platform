@@ -3027,7 +3027,112 @@ These are initially logical modules rather than necessarily separate deployed mi
 
 The MVP should prefer a modular monolith or small number of services rather than prematurely introducing many independently deployed services.
 
-## 10.7 API Architecture
+## 10.7 Interview Execution Service
+
+The Interview Execution Service is responsible for executing a deterministic `InterviewPlan` into a persisted `InterviewQuestion`.
+
+It sits between interview planning and candidate response collection:
+
+```text
+InterviewPlan
+      ↓
+InterviewExecutionService
+      ↓
+QuestionGenerator
+      ↓
+Generated Question
+      ↓
+InterviewService
+      ↓
+InterviewQuestion
+```
+
+#### Responsibilities
+
+The Interview Execution Service:
+
+* validates that the interview exists;
+* validates that the interview candidate matches the plan candidate;
+* validates that the interview target matches the plan target;
+* validates that the interview assessment type matches the plan assessment type;
+* requests question text from the provider-independent `QuestionGenerator`;
+* persists the generated question through `InterviewService`;
+* preserves the competency, difficulty, assessment type, and source planning context through the resulting `InterviewQuestion`.
+
+The execution service does not determine which competency should be assessed. That responsibility belongs to `InterviewPlanner`.
+
+The execution service also does not evaluate the candidate response. Evaluation remains the responsibility of the evaluation layer.
+
+#### Question Generation Boundary
+
+Question generation is defined behind a provider-independent `QuestionGenerator` interface.
+
+The current implementation is `DeterministicQuestionGenerator`, which provides stable question generation for local development and automated testing.
+
+The architecture intentionally keeps question generation separate from interview planning:
+
+```text
+InterviewPlanner
+    → determines WHAT to assess
+
+QuestionGenerator
+    → determines HOW to ask it
+
+InterviewExecutionService
+    → coordinates generation and persistence
+
+InterviewService
+    → owns interview/question lifecycle and persistence
+
+EvaluationService
+    → evaluates evidence produced by candidate responses
+```
+
+This boundary allows the deterministic generator to be replaced by a production AI provider without changing the domain interview contracts or execution orchestration.
+
+#### Future Google AI Integration
+
+Production question generation may be implemented through Gemini and/or Google ADK as an infrastructure/provider adapter.
+
+The application layer must remain provider-agnostic. Gemini or Google ADK-specific request/response handling must not be introduced into `InterviewPlan`, `InterviewQuestion`, `InterviewExecutionService`, or other domain contracts.
+
+The intended production flow is:
+
+```text
+InterviewPlan
+      ↓
+InterviewExecutionService
+      ↓
+QuestionGenerator interface
+      ↓
+Gemini / Google ADK adapter
+      ↓
+Generated Question
+      ↓
+InterviewService
+      ↓
+InterviewQuestion
+```
+
+The generated question remains traceable to the originating interview plan through the persisted interview question's interview, competency, sequence, and difficulty context.
+
+#### Execution Invariants
+
+Interview execution must preserve the following invariants:
+
+1. A question can only be generated for an existing interview.
+2. The interview candidate must match the plan candidate.
+3. The interview target must match the plan target.
+4. The interview assessment type must match the plan assessment type.
+5. Questions can only be persisted while the interview is `IN_PROGRESS`.
+6. Question generation must not independently change the interview lifecycle.
+7. Question generation must not perform candidate evaluation.
+8. Provider-specific AI behavior must remain behind the `QuestionGenerator` boundary.
+
+The deterministic implementation and execution service are covered by application-level unit tests.
+
+
+## 10.8 API Architecture
 
 The frontend will communicate with the backend using HTTPS APIs.
 
@@ -3046,7 +3151,7 @@ The API should follow a resource-oriented structure.
 ```
 The /api/v1 prefix allows future API versions to be introduced without immediately breaking existing clients.
 
-## 10.8 Candidate Profile APIs
+## 10.9 Candidate Profile APIs
 
 Example endpoints:
 
@@ -3063,7 +3168,7 @@ Responsibilities:
 
 The backend should validate all incoming fields.
 
-## 10.9 Target Profile APIs
+## 10.10 Target Profile APIs
 
 Example endpoints:
 ```text
@@ -3090,7 +3195,7 @@ Example:
 ```
 Creating or updating a target profile may trigger a target-profile generation or skill-gap workflow.
 
-## 10.10 Resume APIs
+## 10.11 Resume APIs
 
 Example endpoints:
 ```text
@@ -3121,7 +3226,7 @@ Structured Candidate Profile
 ```
 The application should store the file itself in object storage and retain a reference in the database.
 
-## 10.11 Job Description APIs
+## 10.12 Job Description APIs
 
 Example endpoints:
 ```text
@@ -3146,7 +3251,7 @@ Target Profile
 ```
 The original job description should remain available for traceability.
 
-## 10.12 Skill Gap APIs
+## 10.13 Skill Gap APIs
 
 Example endpoints:
 ```text
@@ -3175,7 +3280,7 @@ Database
 ```
 The frontend should retrieve the resulting structured skill gaps rather than directly interacting with the agents.
 
-## 10.13 Recommendation APIs
+## 10.14 Recommendation APIs
 
 Example endpoints:
 ```text
@@ -3200,7 +3305,7 @@ Recommendation Workflow
         v
 Next Best Action
 ```
-## 10.14 Interview APIs
+## 10.15 Interview APIs
 
 Example endpoints:
 ```text
@@ -3233,7 +3338,7 @@ RECOMMENDATION
 ```
 The interview session should maintain its state throughout the process.
 
-## 10.15 Evaluation APIs
+## 10.16 Evaluation APIs
 
 Example endpoints:
 ```text
@@ -3246,7 +3351,7 @@ The backend should not blindly trust scores generated by the frontend.
 
 Evaluation results must be generated and validated server-side.
 
-## 10.16 Workflow APIs
+## 10.17 Workflow APIs
 
 Long-running agentic workflows should be represented explicitly.
 
@@ -3275,7 +3380,7 @@ CANCELLED
 ```
 The frontend can poll or subscribe to workflow status depending on the final implementation.
 
-## 10.17 Synchronous vs Asynchronous Operations
+## 10.18 Synchronous vs Asynchronous Operations
 
 Not every operation requires an asynchronous workflow.
 
@@ -3338,7 +3443,7 @@ Database Update
 ```
 The frontend can then retrieve workflow status.
 
-## 10.18 API Request Flow
+## 10.19 API Request Flow
 
 A typical authenticated request should follow:
 ```text
@@ -3375,7 +3480,7 @@ Database          Agent Workflow
            v
         Frontend
 ```
-## 10.19 Agent Invocation Boundary
+## 10.20 Agent Invocation Boundary
 
 The frontend must never directly invoke specialized agents.
 
@@ -3405,7 +3510,7 @@ This provides:
 - Workflow persistence
 - Error handling
 
-## 10.20 Gemini Integration Boundary
+## 10.21 Gemini Integration Boundary
 
 Gemini API access should remain on the backend or controlled agent execution environment.
 
@@ -3438,7 +3543,7 @@ Frontend
 ```
 Structured outputs should be preferred whenever the workflow requires predictable data.
 
-## 10.21 API Response Structure
+## 10.22 API Response Structure
 
 The API should use consistent response structures.
 
@@ -3463,7 +3568,7 @@ Error response example:
 ```
 The exact response schema may be finalized during implementation.
 
-## 10.22 API Validation
+## 10.23 API Validation
 
 All API inputs should be validated.
 
@@ -3487,7 +3592,7 @@ Resume
 ```
 Validation should occur server-side even if frontend validation is also implemented.
 
-## 10.23 Authentication and Authorization Boundary
+## 10.24 Authentication and Authorization Boundary
 
 The application should authenticate users before accessing candidate-specific data.
 
@@ -3511,7 +3616,7 @@ A candidate should only be able to access resources belonging to that candidate 
 
 The final authentication implementation will be documented in the security section.
 
-## 10.24 Google Cloud Deployment Architecture
+## 10.25 Google Cloud Deployment Architecture
 
 The initial deployment is expected to use Google Cloud services.
 
@@ -3550,7 +3655,7 @@ This is a conceptual architecture.
 
 The final service selection should be based on actual MVP requirements and cost constraints.
 
-## 10.25 Cloud Run
+## 10.26 Cloud Run
 
 Cloud Run may host:
 
@@ -3568,7 +3673,7 @@ Cloud Run is preferred for the MVP because it provides:
 
 The MVP should avoid creating separate Cloud Run services for every logical module unless there is a clear need.
 
-## 10.26 Firestore
+## 10.27 Firestore
 
 Firestore may be used for application-oriented transactional data such as:
 
@@ -3584,7 +3689,7 @@ Firestore may be used for application-oriented transactional data such as:
 
 Firestore should be evaluated against the final access patterns before implementation.
 
-## 10.27 Cloud Storage
+## 10.28 Cloud Storage
 
 Cloud Storage may be used for:
 
@@ -3594,7 +3699,7 @@ Cloud Storage may be used for:
 
 The database should store references to these files rather than embedding large binary objects.
 
-## 10.28 Pub/Sub
+## 10.29 Pub/Sub
 
 Pub/Sub may be introduced for asynchronous operations such as:
 
@@ -3622,7 +3727,7 @@ Database
 ```
 Pub/Sub should only be introduced where asynchronous processing provides a clear technical benefit.
 
-## 10.29 BigQuery
+## 10.30 BigQuery
 
 BigQuery may be used for analytical workloads rather than primary transactional application storage.
 
@@ -3637,7 +3742,7 @@ Potential analytics include:
 
 The MVP should only introduce BigQuery analytics that provide meaningful value to the product or demonstration.
 
-## 10.30 API Security Principles
+## 10.31 API Security Principles
 
 The API architecture should enforce:
 
@@ -3655,7 +3760,7 @@ Secrets must not be committed to GitHub.
 
 Environment-specific configuration should be managed through appropriate environment variables or Google Cloud secret-management mechanisms.
 
-## 10.31 Error Handling
+## 10.32 Error Handling
 
 The API should return predictable errors.
 
@@ -3673,7 +3778,7 @@ Example:
 ```
 Agent failures should be translated into user-safe error messages while preserving detailed diagnostic information in backend logs.
 
-## 10.32 API Versioning
+## 10.33 API Versioning
 
 The initial API will use:
 ```text
@@ -3685,7 +3790,7 @@ Future breaking changes can be introduced through:
 ```
 The MVP should avoid unnecessary version complexity while maintaining a clear boundary for future evolution.
 
-## 10.33 Application Architecture Decision
+## 10.34 Application Architecture Decision
 
 The MVP will initially prefer a modular backend architecture rather than a large microservice architecture.
 
@@ -3715,7 +3820,7 @@ This approach reduces:
 
 Individual components can be separated into independent services later if scaling or operational requirements justify the change.
 
-## 10.34 MVP Application Boundary
+## 10.35 MVP Application Boundary
 
 The MVP application must support the following end-to-end path:
 ```text

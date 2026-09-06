@@ -527,7 +527,135 @@ Question wording, question generation, and adaptive natural-language interaction
 
 The planner must not independently evaluate the candidate or replace the defined evaluation rubric.
 
-### 3.13 Evidence Privacy
+### 3.13 Interview Execution
+
+Interview execution converts a deterministic `InterviewPlan` into a persisted `InterviewQuestion`.
+
+The execution layer is responsible for orchestration and traceability, not for deciding what competency should be assessed or whether the candidate demonstrated it.
+
+```text
+InterviewPlan
+      ↓
+InterviewExecutionService
+      ↓
+QuestionGenerator
+      ↓
+Generated Question
+      ↓
+InterviewService
+      ↓
+InterviewQuestion
+```
+
+#### Execution Responsibilities
+
+The execution layer must verify:
+
+* the interview exists;
+* the interview candidate matches the plan candidate;
+* the interview target matches the plan target;
+* the interview assessment type matches the plan assessment type;
+* the generated question is persisted through the interview service;
+* the question retains the competency and difficulty selected by the plan.
+
+Questions may only be persisted while the interview is `IN_PROGRESS`.
+
+#### Separation of Responsibilities
+
+The interview pipeline maintains explicit boundaries:
+
+| Component                    | Responsibility                                                      |
+| ---------------------------- | ------------------------------------------------------------------- |
+| `InterviewPlanner`           | Determines what competency and difficulty should be assessed        |
+| `QuestionGenerator`          | Produces question wording from the interview plan                   |
+| `InterviewExecutionService`  | Coordinates generation and persistence                              |
+| `InterviewService`           | Owns interview and question lifecycle                               |
+| `InterviewEvaluationService` | Converts completed interview responses into evidence and evaluation |
+
+This separation prevents question generation from implicitly changing skill-gap decisions or evaluation outcomes.
+
+#### Question Generation Provider Boundary
+
+Question generation is exposed through the provider-independent `QuestionGenerator` interface.
+
+The current deterministic implementation, `DeterministicQuestionGenerator`, is used for local development and automated testing.
+
+A production implementation may use Gemini and/or Google ADK, but provider-specific behavior must remain outside the domain contracts and application orchestration.
+
+```text
+InterviewPlan
+      ↓
+QuestionGenerator interface
+      ↓
+Deterministic provider
+        OR
+Gemini / Google ADK provider
+      ↓
+InterviewQuestion
+```
+
+This allows the AI provider to evolve without changing the deterministic planning and evaluation contracts.
+
+#### Traceability Requirements
+
+Every generated interview question must remain traceable to the planning decision that produced it.
+
+The execution path preserves:
+
+* interview identity;
+* candidate identity;
+* target identity;
+* competency identity;
+* assessment type;
+* question difficulty;
+* question sequence;
+* generated question text.
+
+The `InterviewPlan` also retains the originating skill-gap and recommendation identifiers, allowing the planned question to be traced back to the career-state decision that caused the interview action.
+
+#### Evaluation Boundary
+
+Question generation must not evaluate the candidate response.
+
+After the interview is completed, candidate responses are converted into evidence and passed through the existing evaluation pipeline:
+
+```text
+InterviewQuestion
+      ↓
+InterviewResponse
+      ↓
+InterviewEvidenceService
+      ↓
+Evidence
+      ↓
+EvaluationService
+      ↓
+Skill / Readiness State
+```
+
+This preserves the distinction between:
+
+1. selecting what to assess;
+2. generating how to ask it;
+3. collecting the candidate's response;
+4. evaluating the evidence produced by that response.
+
+#### Execution Quality Criteria
+
+An interview execution implementation is considered correct when:
+
+1. valid plans produce persisted interview questions;
+2. invalid interview/plan ownership combinations are rejected;
+3. assessment-type mismatches are rejected;
+4. questions cannot bypass interview lifecycle rules;
+5. question generation remains replaceable through the provider boundary;
+6. generated questions remain traceable to the originating interview context;
+7. execution does not perform candidate evaluation.
+
+The deterministic execution implementation is covered by application-level unit tests.
+
+
+### 3.14 Evidence Privacy
 
 Candidate evidence may contain sensitive personal or professional information.
 
@@ -540,7 +668,7 @@ The platform should:
 - Follow the project's authentication, authorization, and data-retention rules.
 - Never use confidential employer information as test data.
 
-### 3.14 Evidence Quality Guardrail
+### 3.15 Evidence Quality Guardrail
 
 The system must distinguish between:
 
