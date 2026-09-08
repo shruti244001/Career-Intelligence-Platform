@@ -47,6 +47,28 @@ class NextQuestionRequest(BaseModel):
     source_gap_id: UUID
     source_recommendation_id: UUID
 
+class InterviewResponseCreateRequest(BaseModel):
+    """Request payload for submitting a candidate interview response."""
+
+    question_id: UUID
+    response: str
+    code: str | None = None
+    programming_language: str | None = None
+
+
+class InterviewResponseResponse(BaseModel):
+    """API representation of a candidate interview response."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    interview_id: UUID
+    question_id: UUID
+    response: str
+    code: str | None
+    programming_language: str | None
+    responded_at: datetime
+
 class InterviewQuestionResponse(BaseModel):
     """API representation of an interview question."""
 

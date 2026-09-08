@@ -13,6 +13,8 @@ from careergraph.api.schemas.interviews import (
     InterviewCreateRequest,
     InterviewQuestionResponse,
     InterviewResponse,
+    InterviewResponseCreateRequest,
+    InterviewResponseResponse,
     NextQuestionRequest,
 )
 from careergraph.application.interviews.execution import (
@@ -145,3 +147,39 @@ def generate_next_question(
         ) from exc
 
     return InterviewQuestionResponse.model_validate(question)
+@router.post(
+    "/{interview_id}/responses",
+    response_model=InterviewResponseResponse,
+    status_code=status.HTTP_201_CREATED,
+)
+def create_interview_response(
+    interview_id: UUID,
+    request: InterviewResponseCreateRequest,
+    service: InterviewService = Depends(get_interview_service),
+) -> InterviewResponseResponse:
+    """Submit a candidate response to an interview question."""
+
+    interview = service.get_interview(interview_id)
+
+    if interview is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Interview not found",
+        )
+
+    try:
+        response = service.add_response(
+            interview_id=interview_id,
+            question_id=request.question_id,
+            response=request.response,
+            code=request.code,
+            programming_language=request.programming_language,
+            responded_at=datetime.now(timezone.utc),
+        )
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=str(exc),
+        ) from exc
+
+    return InterviewResponseResponse.model_validate(response)
