@@ -4,6 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from careergraph.api.routes.candidates import router as candidate_router
+from careergraph.api.routes.interviews import router as interview_router
 from careergraph.api.routes.evidence import router as evidence_router
 from careergraph.api.routes.targets import router as target_router
 
@@ -23,6 +24,7 @@ app.add_middleware(
 app.include_router(candidate_router)
 app.include_router(target_router)
 app.include_router(evidence_router)
+app.include_router(interview_router)
 
 
 @app.get("/health")
