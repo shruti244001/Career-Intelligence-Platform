@@ -131,7 +131,6 @@ def test_execute_next_question_generates_and_persists_question():
     question = execution_service.execute_next_question(
         interview_id=INTERVIEW_ID,
         plan=plan,
-        sequence=1,
         asked_at=STARTED_AT,
         question_id=QUESTION_ID,
     )
@@ -162,7 +161,6 @@ def test_unknown_interview_is_rejected():
         execution_service.execute_next_question(
             interview_id=INTERVIEW_ID,
             plan=plan,
-            sequence=1,
             asked_at=STARTED_AT,
         )
 
@@ -201,7 +199,6 @@ def test_interview_candidate_must_match_plan():
         execution_service.execute_next_question(
             interview_id=INTERVIEW_ID,
             plan=plan,
-            sequence=1,
             asked_at=STARTED_AT,
         )
 
@@ -240,7 +237,6 @@ def test_interview_target_must_match_plan():
         execution_service.execute_next_question(
             interview_id=INTERVIEW_ID,
             plan=plan,
-            sequence=1,
             asked_at=STARTED_AT,
         )
 
@@ -277,6 +273,5 @@ def test_interview_assessment_type_must_match_plan():
         execution_service.execute_next_question(
             interview_id=INTERVIEW_ID,
             plan=plan,
-            sequence=1,
             asked_at=STARTED_AT,
         )

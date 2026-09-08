@@ -169,3 +169,42 @@ def test_generate_question_rejects_mismatched_target() -> None:
     assert response.json()["detail"] == (
         "interview does not belong to plan target"
     )
+def test_generate_multiple_questions_increments_sequence() -> None:
+    """Each generated question should receive the next sequence number."""
+
+    interview_id, interview_payload = create_started_interview()
+
+    first_request = question_payload(interview_payload)
+
+    first_response = client.post(
+        f"/api/v1/interviews/{interview_id}/questions/next",
+        json=first_request,
+    )
+
+    assert first_response.status_code == 200
+    assert first_response.json()["sequence"] == 1
+
+    second_request = question_payload(interview_payload)
+
+    second_response = client.post(
+        f"/api/v1/interviews/{interview_id}/questions/next",
+        json=second_request,
+    )
+
+    assert second_response.status_code == 200
+    assert second_response.json()["sequence"] == 2
+
+
+def test_generate_third_question_has_sequence_three() -> None:
+    """The third generated question should receive sequence number three."""
+
+    interview_id, interview_payload = create_started_interview()
+
+    for expected_sequence in (1, 2, 3):
+        response = client.post(
+            f"/api/v1/interviews/{interview_id}/questions/next",
+            json=question_payload(interview_payload),
+        )
+
+        assert response.status_code == 200
+        assert response.json()["sequence"] == expected_sequence

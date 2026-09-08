@@ -1,5 +1,6 @@
 """Application service for executing interview plans."""
 
+from careergraph.application.interviews import planner
 from datetime import datetime
 from uuid import UUID
 
@@ -38,7 +39,6 @@ class InterviewExecutionService:
         *,
         interview_id: UUID,
         plan: InterviewPlan,
-        sequence: int,
         asked_at: datetime,
         question_id: UUID | None = None,
     ) -> InterviewQuestion:
@@ -64,12 +64,26 @@ class InterviewExecutionService:
                 "interview assessment type does not match plan"
             )
 
+        existing_questions = self._interview_service.list_questions(
+            interview_id,
+        )
+
+        next_sequence = (
+            max(
+                question.sequence
+                for question in existing_questions
+            )
+            + 1
+            if existing_questions
+            else 1
+        )
+
         question = self._question_generator.generate(plan=plan)
 
         return self._interview_service.add_question(
             interview_id=interview_id,
             question_id=question_id,
-            sequence=sequence,
+            sequence=next_sequence,
             competency_id=plan.competency_id,
             question=question,
             difficulty=plan.difficulty,
