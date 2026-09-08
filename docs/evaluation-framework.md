@@ -654,8 +654,121 @@ An interview execution implementation is considered correct when:
 
 The deterministic execution implementation is covered by application-level unit tests.
 
+### 3.14 Readiness Workflow and Evaluation Orchestration
 
-### 3.14 Evidence Privacy
+CareerGraph implements an application-level readiness workflow that connects
+interview evaluation to the evidence-driven candidate readiness loop.
+
+The workflow coordinates existing application services rather than duplicating
+their business rules.
+
+The current orchestration path is:
+```text
+InterviewEvaluationService
+        ↓
+WeightedEvaluation
+        ↓
+SkillStateService
+        ↓
+SkillGapService
+        ↓
+RecommendationService
+```
+The resulting readiness cycle is:
+```text
+Interview
+    ↓
+Candidate Response
+    ↓
+Evidence
+    ↓
+Evaluation
+    ↓
+Skill State
+    ↓
+Skill Gap
+    ↓
+Next Best Action
+```
+### 3.14.1 Workflow Responsibilities
+
+The readiness workflow is responsible for:
+
+1. validating that the referenced interview exists
+2. invoking interview evaluation
+3. passing the resulting evaluation to skill-state processing
+4. generating target-specific skill gaps
+5. generating next-best-action recommendations
+6. returning the complete readiness result
+
+The workflow does not independently:
+
+- calculate evaluation scores
+- map scores to proficiency
+- classify skill gaps
+- determine recommendation actions
+- generate interview questions
+- make hiring predictions
+
+These responsibilities remain within their dedicated domain/application
+boundaries.
+
+### 3.14.2 Deterministic Orchestration
+
+Workflow sequencing and deterministic state transitions are application
+responsibilities.
+
+LLM providers are not responsible for:
+
+- workflow state transitions
+- score aggregation
+- proficiency mapping
+- skill-gap classification
+- recommendation ranking
+- persistence decisions
+- validation
+
+This preserves explainability and makes the readiness workflow testable
+without requiring an external AI provider.
+
+### 3.14.3 Traceability
+
+The workflow preserves the evidence-driven chain:
+```text
+Candidate
+    ↓
+Interview
+    ↓
+Question
+    ↓
+Response
+    ↓
+Evidence
+    ↓
+Evaluation
+    ↓
+Skill State
+    ↓
+Skill Gap
+    ↓
+Recommendation
+```
+Each downstream decision must remain traceable to the evidence and evaluation
+that produced it.
+
+### 3.14.4 Current Implementation Boundary
+
+The current implementation provides the deterministic application foundation
+for the readiness loop.
+
+Gemini-powered interpretation and generation are introduced through explicit
+provider boundaries and are not embedded into the core evaluation or workflow
+logic.
+
+Production persistence, asynchronous execution, and Google Cloud workflow
+infrastructure are subsequent implementation phases.
+
+### 3.15 Evidence Privacy
 
 Candidate evidence may contain sensitive personal or professional information.
 
@@ -668,7 +781,7 @@ The platform should:
 - Follow the project's authentication, authorization, and data-retention rules.
 - Never use confidential employer information as test data.
 
-### 3.15 Evidence Quality Guardrail
+### 3.16 Evidence Quality Guardrail
 
 The system must distinguish between:
 
@@ -1317,6 +1430,27 @@ The evaluation system must:
 - Keep score thresholds configurable.
 - Avoid presenting internal scores as objective measurements of a person's overall ability.
 
+### 5.15 Current Deterministic Scoring Implementation
+
+The current application implementation uses deterministic evidence-strength
+mapping as the initial scoring foundation:
+
+| Evidence Strength | Score |
+|---|---:|
+| Weak | 35 |
+| Moderate | 60 |
+| Strong | 85 |
+
+Scores are then aggregated according to rubric dimension weights and mapped
+to the defined proficiency states.
+
+This implementation is intentionally deterministic and provider-independent.
+
+Future Gemini-based evaluation may interpret candidate responses and produce
+structured dimension-level evidence or assessments, but final score
+aggregation and proficiency mapping remain deterministic application/domain
+responsibilities.
+
 ## 6. Coding Evaluation Rubric
 
 The Coding Evaluation Rubric defines how Career-Intelligence-Platform evaluates candidate performance during coding interviews.
@@ -1825,3 +1959,24 @@ Practice time and space complexity analysis for graph
 algorithms and explain complexity before finalizing solutions.
 ```
 The example is illustrative only. Production evaluations must be generated from actual candidate evidence and the configured rubric.
+
+### 6.22 Evaluation Implementation Boundary
+
+The coding rubric defines the evaluation dimensions and their weights, while
+the application evaluation layer is responsible for deterministic aggregation.
+
+The evaluation architecture separates:
+
+- evidence collection
+- evidence strength and confidence
+- rubric dimension evaluation
+- weighted score aggregation
+- proficiency mapping
+- skill-state update
+- skill-gap analysis
+- next-best-action generation
+
+AI may be used to interpret candidate responses and produce structured
+dimension-level evaluation inputs. It must not independently determine the
+final readiness state or bypass the rubric and deterministic aggregation
+rules.
