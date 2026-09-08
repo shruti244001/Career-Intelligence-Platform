@@ -5,7 +5,11 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict
 
-from careergraph.domain.types import AssessmentType, InterviewStatus
+from careergraph.domain.types import (
+    AssessmentType,
+    InterviewStatus,
+    QuestionDifficulty,
+)
 
 
 class InterviewCreateRequest(BaseModel):
@@ -30,3 +34,28 @@ class InterviewResponse(BaseModel):
     title: str | None
     started_at: datetime | None
     completed_at: datetime | None
+
+
+class NextQuestionRequest(BaseModel):
+    """Request payload for generating the next interview question."""
+
+    candidate_id: UUID
+    target_id: UUID
+    competency_id: UUID
+    assessment_type: AssessmentType
+    difficulty: QuestionDifficulty
+    source_gap_id: UUID
+    source_recommendation_id: UUID
+
+class InterviewQuestionResponse(BaseModel):
+    """API representation of an interview question."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    interview_id: UUID
+    sequence: int
+    competency_id: UUID
+    question: str
+    difficulty: QuestionDifficulty
+    asked_at: datetime

@@ -8,7 +8,10 @@ from careergraph.application.interviews.question_generator import (
     QuestionGenerator,
 )
 from careergraph.application.interviews.service import InterviewService
-from careergraph.domain.interviews.models import InterviewQuestion
+from careergraph.domain.interviews.models import (
+    InterviewQuestion,
+    InterviewSession,
+)
 
 
 class InterviewExecutionService:
@@ -22,6 +25,13 @@ class InterviewExecutionService:
     ) -> None:
         self._interview_service = interview_service
         self._question_generator = question_generator
+
+    def get_interview(
+        self,
+        interview_id: UUID,
+    ) -> InterviewSession | None:
+        """Retrieve an interview session for API orchestration."""
+        return self._interview_service.get_interview(interview_id)
 
     def execute_next_question(
         self,
@@ -65,3 +75,5 @@ class InterviewExecutionService:
             difficulty=plan.difficulty,
             asked_at=asked_at,
         )
+
+    
