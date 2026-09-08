@@ -20,8 +20,8 @@ from careergraph.api.schemas.interviews import (
 from careergraph.application.interviews.execution import (
     InterviewExecutionService,
 )
-from careergraph.application.interviews.service import InterviewService
 from careergraph.application.interviews.planner import InterviewPlan
+from careergraph.application.interviews.service import InterviewService
 
 router = APIRouter(
     prefix="/api/v1/interviews",
@@ -102,6 +102,39 @@ def start_interview(
 
     return InterviewResponse.model_validate(started)
 
+
+@router.post(
+    "/{interview_id}/complete",
+    response_model=InterviewResponse,
+)
+def complete_interview(
+    interview_id: UUID,
+    service: InterviewService = Depends(get_interview_service),
+) -> InterviewResponse:
+    """Complete an interview session."""
+
+    interview = service.get_interview(interview_id)
+
+    if interview is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Interview not found",
+        )
+
+    try:
+        completed = service.complete_interview(
+            interview,
+            completed_at=datetime.now(timezone.utc),
+        )
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=str(exc),
+        ) from exc
+
+    return InterviewResponse.model_validate(completed)
+
+
 @router.post(
     "/{interview_id}/questions/next",
     response_model=InterviewQuestionResponse,
@@ -147,6 +180,8 @@ def generate_next_question(
         ) from exc
 
     return InterviewQuestionResponse.model_validate(question)
+
+
 @router.post(
     "/{interview_id}/responses",
     response_model=InterviewResponseResponse,
