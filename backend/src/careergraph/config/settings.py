@@ -1,5 +1,7 @@
 """Application configuration."""
 
+from typing import Literal
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -14,6 +16,9 @@ class Settings(BaseSettings):
 
     gemini_api_key: str | None = None
     gemini_model: str = "gemini-3.7-flash"
+    interview_question_provider: Literal["deterministic", "gemini"] = (
+        "deterministic"
+    )
 
 
 settings = Settings()
