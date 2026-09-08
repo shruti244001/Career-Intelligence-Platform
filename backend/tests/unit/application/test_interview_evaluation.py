@@ -143,6 +143,7 @@ def create_fixture():
     return (
         interview,
         interview_service,
+        evidence_service,
         interview_evidence_service,
         interview_evaluation_service,
     )
@@ -152,6 +153,7 @@ def test_completed_interview_is_evaluated():
     (
         interview,
         interview_service,
+        evidence_service,
         _,
         interview_evaluation_service,
     ) = create_fixture()
@@ -176,11 +178,18 @@ def test_completed_interview_is_evaluated():
 
     assert evaluation.id == EVALUATION_ID
     assert evaluation.candidate_id == CANDIDATE_ID
+    evidence = evidence_service.list_candidate_evidence(
+        CANDIDATE_ID
+    )
+
+    assert len(evidence) == 1
+    assert evidence[0].strength is EvidenceStrength.MODERATE
 
 
 def test_in_progress_interview_cannot_be_evaluated():
     (
         interview,
+        _,
         _,
         _,
         interview_evaluation_service,
@@ -202,6 +211,7 @@ def test_in_progress_interview_cannot_be_evaluated():
 
 def test_unknown_interview_is_rejected():
     (
+        _,
         _,
         _,
         _,
