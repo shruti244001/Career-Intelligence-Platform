@@ -135,9 +135,9 @@ def generate_next_question(
         question = execution_service.execute_next_question(
             interview_id=interview_id,
             plan=plan,
-            sequence=1,
             asked_at=datetime.now(timezone.utc),
         )
+
     except ValueError as exc:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
