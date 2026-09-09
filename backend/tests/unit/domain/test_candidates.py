@@ -105,3 +105,29 @@ def test_candidate_profile_is_immutable() -> None:
 
     with pytest.raises(ValidationError):
         candidate.name = "Updated Name"
+
+
+def test_candidate_profile_accepts_resume_reference() -> None:
+    """A candidate profile may reference an uploaded resume."""
+    reference = "resumes/123/resume.pdf"
+
+    candidate = build_candidate_profile(
+        resume_reference=reference,
+    )
+
+    assert candidate.resume_reference == reference
+
+
+def test_candidate_profile_rejects_empty_resume_reference() -> None:
+    """An explicitly supplied empty resume reference is invalid."""
+    with pytest.raises(ValidationError):
+        build_candidate_profile(resume_reference="")
+
+
+def test_candidate_profile_rejects_whitespace_resume_reference() -> None:
+    """Whitespace-only resume references are invalid."""
+    with pytest.raises(ValidationError):
+        build_candidate_profile(resume_reference="   ")
+
+
+

@@ -31,6 +31,7 @@ class FirestoreCandidateRepository:
             "technologies": list(candidate.technologies),
             "projects": list(candidate.projects),
             "summary": candidate.summary,
+            "resume_reference": candidate.resume_reference,
         }
 
     @staticmethod
@@ -51,6 +52,7 @@ class FirestoreCandidateRepository:
             technologies=tuple(data.get("technologies", [])),
             projects=tuple(data.get("projects", [])),
             summary=data.get("summary"),
+            resume_reference=data.get("resume_reference"),
         )
 
     def create(self, candidate: CandidateProfile) -> CandidateProfile:

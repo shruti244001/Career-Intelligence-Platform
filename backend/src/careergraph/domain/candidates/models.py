@@ -26,6 +26,7 @@ class CandidateProfile(BaseModel):
     technologies: tuple[str, ...] = ()
     projects: tuple[str, ...] = ()
     summary: str | None = None
+    resume_reference: str | None = None
 
     @field_validator("name")
     @classmethod
@@ -33,7 +34,7 @@ class CandidateProfile(BaseModel):
         """Reject empty candidate names."""
         return non_empty(value)
 
-    @field_validator("email", "summary")
+    @field_validator("email", "summary", "resume_reference")
     @classmethod
     def validate_optional_text(
         cls,

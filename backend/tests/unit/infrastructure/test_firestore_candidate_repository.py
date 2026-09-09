@@ -80,6 +80,7 @@ def make_candidate() -> CandidateProfile:
         technologies=("FastAPI", "Firestore"),
         projects=("CareerGraph AI",),
         summary="Test candidate profile",
+        resume_reference="resumes/test-candidate/resume.pdf",
     )
 
 
