@@ -5,15 +5,33 @@ from uuid import uuid4
 
 from fastapi.testclient import TestClient
 
-from careergraph.api.dependencies.evidence import evidence_repository
+from careergraph.api.dependencies.evidence import (
+    EvidenceRepository,
+    InMemoryEvidenceRepository,
+    evidence_repository,
+)
 from careergraph.main import app
 
+
 client = TestClient(app)
+
+_test_repository = InMemoryEvidenceRepository()
+_original_repository = evidence_repository._repository
+
+
+def setup_module() -> None:
+    """Use an isolated in-memory repository for API tests."""
+    evidence_repository._repository = _test_repository
+
+
+def teardown_module() -> None:
+    """Restore the production repository after tests."""
+    evidence_repository._repository = _original_repository
 
 
 def setup_function() -> None:
     """Reset the in-memory evidence repository before each test."""
-    evidence_repository._evidence.clear()
+    _test_repository._evidence.clear()
 
 
 def make_evidence_payload() -> dict:
@@ -38,7 +56,6 @@ def make_evidence_payload() -> dict:
 
 def test_create_evidence() -> None:
     """POST should create and return evidence."""
-
     payload = make_evidence_payload()
 
     response = client.post(
@@ -61,7 +78,6 @@ def test_create_evidence() -> None:
 
 def test_get_evidence() -> None:
     """GET should return previously created evidence."""
-
     create_response = client.post(
         "/api/v1/evidence",
         json=make_evidence_payload(),
@@ -79,7 +95,6 @@ def test_get_evidence() -> None:
 
 def test_get_missing_evidence_returns_404() -> None:
     """GET should return 404 for unknown evidence."""
-
     response = client.get(
         f"/api/v1/evidence/{uuid4()}"
     )
@@ -90,7 +105,6 @@ def test_get_missing_evidence_returns_404() -> None:
 
 def test_list_candidate_evidence() -> None:
     """GET candidate evidence should return only matching evidence."""
-
     candidate_id = uuid4()
 
     first_payload = make_evidence_payload()
@@ -123,7 +137,6 @@ def test_list_candidate_evidence() -> None:
 
 def test_delete_evidence() -> None:
     """DELETE should remove existing evidence."""
-
     create_response = client.post(
         "/api/v1/evidence",
         json=make_evidence_payload(),
@@ -146,7 +159,6 @@ def test_delete_evidence() -> None:
 
 def test_delete_missing_evidence_returns_404() -> None:
     """DELETE should return 404 for unknown evidence."""
-
     response = client.delete(
         f"/api/v1/evidence/{uuid4()}"
     )
@@ -156,7 +168,6 @@ def test_delete_missing_evidence_returns_404() -> None:
 
 def test_create_evidence_rejects_missing_candidate_id() -> None:
     """POST should reject requests without candidate ID."""
-
     payload = make_evidence_payload()
     del payload["candidate_id"]
 

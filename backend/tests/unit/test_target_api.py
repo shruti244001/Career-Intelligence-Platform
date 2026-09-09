@@ -4,15 +4,28 @@ from uuid import uuid4
 
 from fastapi.testclient import TestClient
 
-from careergraph.api.dependencies.targets import target_repository
+from careergraph.api.dependencies.targets import (
+    InMemoryTargetProfileRepository,
+    target_repository,
+)
 from careergraph.main import app
+
+_test_repository = InMemoryTargetProfileRepository()
+
+_original_repository = target_repository._repository
+target_repository._repository = _test_repository
 
 client = TestClient(app)
 
 
 def setup_function() -> None:
     """Reset the in-memory repository before each test."""
-    target_repository._targets.clear()
+    _test_repository._targets.clear()
+
+
+def teardown_module() -> None:
+    """Restore the configured repository after tests."""
+    target_repository._repository = _original_repository
 
 
 def test_create_target_profile() -> None:
