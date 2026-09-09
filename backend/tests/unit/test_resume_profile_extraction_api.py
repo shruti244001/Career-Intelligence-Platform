@@ -12,7 +12,6 @@ client = TestClient(app)
 
 def test_extract_profile_from_resume() -> None:
     """A resume can be converted into a candidate profile."""
-
     candidate_id = uuid4()
 
     response = client.post(
@@ -22,18 +21,16 @@ def test_extract_profile_from_resume() -> None:
             "file": (
                 "resume.txt",
                 BytesIO(
-                    
-                        b"Shruti Sharma\n"
-                        b"shruti@example.com\n\n"
-                        b"EDUCATION\n"
-                        b"B.Tech Computer Science\n\n"
-                        b"SKILLS\n"
-                        b"Python, SQL\n\n"
-                        b"TECHNOLOGIES\n"
-                        b"FastAPI, Google Cloud\n\n"
-                        b"PROJECTS\n"
-                        b"CareerGraph AI\n"
-                    
+                    b"Shruti Sharma\n"
+                    b"shruti@example.com\n\n"
+                    b"EDUCATION\n"
+                    b"B.Tech Computer Science\n\n"
+                    b"SKILLS\n"
+                    b"Python, SQL\n\n"
+                    b"TECHNOLOGIES\n"
+                    b"FastAPI, Google Cloud\n\n"
+                    b"PROJECTS\n"
+                    b"CareerGraph AI\n"
                 ),
                 "text/plain",
             )
@@ -51,6 +48,9 @@ def test_extract_profile_from_resume() -> None:
     assert data["skills"] == ["Python", "SQL"]
     assert data["technologies"] == ["FastAPI", "Google Cloud"]
     assert data["projects"] == ["CareerGraph AI"]
+    assert data["resume_reference"] == (
+        f"resumes/{candidate_id}/resume.txt"
+    )
 
 
 def test_extract_profile_rejects_missing_candidate_id() -> None:

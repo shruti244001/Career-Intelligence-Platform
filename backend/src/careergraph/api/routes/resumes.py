@@ -8,7 +8,10 @@ from careergraph.api.dependencies.candidates import get_candidate_profile_servic
 from careergraph.api.dependencies.profile_extraction import (
     get_profile_extraction_service,
 )
-from careergraph.api.dependencies.resumes import get_resume_ingestion_service
+from careergraph.api.dependencies.resumes import (
+    get_resume_ingestion_service,
+    get_resume_storage,
+)
 from careergraph.api.schemas.candidates import CandidateResponse
 from careergraph.api.schemas.resumes import ResumeExtractionResponse
 from careergraph.application.candidates.service import CandidateProfileService
@@ -16,6 +19,7 @@ from careergraph.application.profile_extraction.service import (
     ProfileExtractionService,
 )
 from careergraph.application.resumes.service import ResumeIngestionService
+from careergraph.application.resumes.storage import ResumeStorage
 from careergraph.infrastructure.resumes.text_extractor import (
     ResumeTextExtractionError,
     UnsupportedResumeFormatError,
@@ -81,9 +85,11 @@ async def extract_resume_profile(
     candidate_service: CandidateProfileService = Depends(
         get_candidate_profile_service,
     ),
+    resume_storage: ResumeStorage = Depends(get_resume_storage),
 ) -> CandidateResponse:
-    """Extract and persist a structured candidate profile from a resume."""
+    """Extract, store, and persist a structured candidate profile."""
     content = await file.read()
+    storage_reference: str | None = None
 
     try:
         resume = resume_service.extract_text(
@@ -92,9 +98,20 @@ async def extract_resume_profile(
             content=content,
         )
 
+        storage_reference = resume_storage.store(
+            candidate_id=candidate_id,
+            filename=resume.filename,
+            media_type=resume.media_type,
+            content=content,
+        )
+
         profile = profile_service.extract_profile(
             resume=resume,
             candidate_id=candidate_id,
+        )
+
+        profile = profile.model_copy(
+            update={"resume_reference": storage_reference},
         )
 
         persisted_profile = candidate_service.persist_candidate(profile)
@@ -109,9 +126,17 @@ async def extract_resume_profile(
             detail=str(exc),
         ) from exc
     except ValueError as exc:
+        if storage_reference is not None:
+            resume_storage.delete(storage_reference)
+
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(exc),
         ) from exc
+    except Exception:
+        if storage_reference is not None:
+            resume_storage.delete(storage_reference)
+
+        raise
 
     return CandidateResponse.model_validate(persisted_profile)

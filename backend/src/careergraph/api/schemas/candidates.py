@@ -47,3 +47,4 @@ class CandidateResponse(BaseModel):
     technologies: tuple[str, ...] = ()
     projects: tuple[str, ...] = ()
     summary: str | None = None
+    resume_reference: str | None = None
