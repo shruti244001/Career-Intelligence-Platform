@@ -5,7 +5,6 @@ from typing import Literal
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-
 _BACKEND_DIR = Path(__file__).resolve().parents[3]
 
 
@@ -24,6 +23,11 @@ class Settings(BaseSettings):
     interview_question_provider: Literal[
         "deterministic",
         "gemini",
+        "vertex_ai",
+    ] = "deterministic"
+
+    profile_extraction_provider: Literal[
+        "deterministic",
         "vertex_ai",
     ] = "deterministic"
 
