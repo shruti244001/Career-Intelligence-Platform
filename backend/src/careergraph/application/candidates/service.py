@@ -3,15 +3,22 @@
 from decimal import Decimal
 from uuid import UUID, uuid4
 
+from careergraph.application.candidates.in_memory_repository import (
+    InMemoryCandidateRepository,
+)
+from careergraph.application.candidates.repository import CandidateRepository
 from careergraph.domain.candidates.models import CandidateProfile
 
 
 class CandidateProfileService:
     """Manage candidate profile use cases."""
 
-    def __init__(self) -> None:
-        """Initialize the in-memory candidate store."""
-        self._candidates: dict[UUID, CandidateProfile] = {}
+    def __init__(
+        self,
+        repository: CandidateRepository | None = None,
+    ) -> None:
+        """Initialize the candidate profile service."""
+        self._repository = repository or InMemoryCandidateRepository()
 
     def create_candidate(
         self,
@@ -25,12 +32,10 @@ class CandidateProfileService:
         projects: tuple[str, ...] = (),
         summary: str | None = None,
     ) -> CandidateProfile:
-        """Create and store a new candidate profile."""
-        candidate_id = uuid4()
-
+        """Create and persist a new candidate profile."""
         candidate = CandidateProfile(
             id=uuid4(),
-            candidate_id=candidate_id,
+            candidate_id=uuid4(),
             name=name,
             email=email,
             education=education,
@@ -41,9 +46,7 @@ class CandidateProfileService:
             summary=summary,
         )
 
-        self._candidates[candidate_id] = candidate
-
-        return candidate
+        return self._repository.create(candidate)
 
     def get_candidate(
         self,
@@ -53,7 +56,7 @@ class CandidateProfileService:
         if isinstance(candidate, CandidateProfile):
             return candidate
 
-        return self._candidates.get(candidate)
+        return self._repository.get(candidate)
 
     def update_candidate(
         self,
@@ -68,7 +71,7 @@ class CandidateProfileService:
         projects: tuple[str, ...] | None = None,
         summary: str | None = None,
     ) -> CandidateProfile:
-        """Return and store an updated immutable candidate profile."""
+        """Return and persist an updated immutable candidate profile."""
         updates = candidate.model_dump()
 
         if name is not None:
@@ -90,15 +93,8 @@ class CandidateProfileService:
 
         updated_candidate = CandidateProfile.model_validate(updates)
 
-        self._candidates[updated_candidate.candidate_id] = updated_candidate
-
-        return updated_candidate
+        return self._repository.update(updated_candidate)
 
     def delete_candidate(self, candidate_id: UUID) -> UUID | None:
         """Delete a candidate and return its identifier."""
-        candidate = self._candidates.pop(candidate_id, None)
-
-        if candidate is None:
-            return None
-
-        return candidate_id
+        return self._repository.delete(candidate_id)

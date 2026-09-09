@@ -36,6 +36,11 @@ class Settings(BaseSettings):
         "firestore",
     ] = "memory"
 
+    candidate_storage_provider: Literal[
+        "memory",
+        "firestore",
+    ] = "memory"
+
     google_cloud_project: str = "careergraph-ai-2531"
     google_cloud_location: str = "global"
 
