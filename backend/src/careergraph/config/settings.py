@@ -20,9 +20,20 @@ class Settings(BaseSettings):
 
     gemini_api_key: str | None = None
     gemini_model: str = "gemini-3.7-flash"
-    interview_question_provider: Literal["deterministic", "gemini"] = (
-        "deterministic"
-    )
+
+    interview_question_provider: Literal[
+        "deterministic",
+        "gemini",
+        "vertex_ai",
+    ] = "deterministic"
+
+    interview_storage_provider: Literal[
+        "memory",
+        "firestore",
+    ] = "memory"
+
+    google_cloud_project: str = "careergraph-ai-2531"
+    google_cloud_location: str = "global"
 
 
 settings = Settings()

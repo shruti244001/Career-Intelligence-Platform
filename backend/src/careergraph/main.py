@@ -7,6 +7,7 @@ from careergraph.api.routes.candidates import router as candidate_router
 from careergraph.api.routes.interviews import router as interview_router
 from careergraph.api.routes.evidence import router as evidence_router
 from careergraph.api.routes.targets import router as target_router
+from careergraph.api.routes.readiness import router as readiness_router
 
 app = FastAPI(title="CareerGraph API")
 
@@ -25,6 +26,7 @@ app.include_router(candidate_router)
 app.include_router(target_router)
 app.include_router(evidence_router)
 app.include_router(interview_router)
+app.include_router(readiness_router)
 
 
 @app.get("/health")

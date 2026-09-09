@@ -5,21 +5,46 @@ from uuid import uuid4
 from fastapi.testclient import TestClient
 
 from careergraph.api.dependencies.interviews import (
+    get_interview_execution_service,
     get_interview_service,
+)
+from careergraph.application.interviews.execution import InterviewExecutionService
+from careergraph.application.interviews.question_generator import (
+    DeterministicQuestionGenerator,
+)
+from careergraph.application.interviews.service import (
+    InMemoryInterviewRepository,
+    InterviewService,
 )
 from careergraph.main import app
 
+
+_test_service = InterviewService(
+    repository=InMemoryInterviewRepository(),
+)
+
+_test_execution_service = InterviewExecutionService(
+    interview_service=_test_service,
+    question_generator=DeterministicQuestionGenerator(),
+)
+
+app.dependency_overrides[get_interview_service] = lambda: _test_service
+app.dependency_overrides[get_interview_execution_service] = (
+    lambda: _test_execution_service
+)
 
 client = TestClient(app)
 
 
 def setup_function() -> None:
-    """Reset the in-memory interview service before each test."""
-    service = get_interview_service()
+    """Reset the in-memory interview repository before each test."""
+    repository = _test_service._repository
 
-    service._interviews.clear()
-    service._questions.clear()
-    service._responses.clear()
+    assert isinstance(repository, InMemoryInterviewRepository)
+
+    repository._interviews.clear()
+    repository._questions.clear()
+    repository._responses.clear()
 
 
 def create_started_interview() -> tuple[str, dict]:
@@ -169,6 +194,8 @@ def test_generate_question_rejects_mismatched_target() -> None:
     assert response.json()["detail"] == (
         "interview does not belong to plan target"
     )
+
+
 def test_generate_multiple_questions_increments_sequence() -> None:
     """Each generated question should receive the next sequence number."""
 

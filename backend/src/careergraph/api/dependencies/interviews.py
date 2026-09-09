@@ -2,21 +2,46 @@
 
 from google import genai
 
-from careergraph.application.interviews.execution import (
-    InterviewExecutionService,
-)
+from careergraph.application.interviews.execution import InterviewExecutionService
 from careergraph.application.interviews.question_generator import (
     DeterministicQuestionGenerator,
     QuestionGenerator,
 )
-from careergraph.application.interviews.service import InterviewService
+from careergraph.application.interviews.service import (
+    InMemoryInterviewRepository,
+    InterviewService,
+)
 from careergraph.config.settings import settings
 from careergraph.infrastructure.ai.gemini_question_generator import (
     GeminiQuestionGenerator,
 )
+from careergraph.infrastructure.firestore.client import get_firestore_client
+from careergraph.infrastructure.firestore.interview_repository import (
+    FirestoreInterviewRepository,
+)
 
 
-_interview_service = InterviewService()
+def _build_interview_service() -> InterviewService:
+    """Build the configured interview service."""
+
+    if settings.interview_storage_provider == "memory":
+        return InterviewService(
+            repository=InMemoryInterviewRepository(),
+        )
+
+    if settings.interview_storage_provider == "firestore":
+        repository = FirestoreInterviewRepository(
+            get_firestore_client(),
+        )
+        return InterviewService(repository=repository)
+
+    raise RuntimeError(
+        "Unsupported interview storage provider: "
+        f"{settings.interview_storage_provider}"
+    )
+
+
+_interview_service = _build_interview_service()
 
 
 def _build_question_generator() -> QuestionGenerator:
@@ -32,7 +57,21 @@ def _build_question_generator() -> QuestionGenerator:
                 "INTERVIEW_QUESTION_PROVIDER=gemini"
             )
 
-        client = genai.Client(api_key=settings.gemini_api_key)
+        client = genai.Client(
+            api_key=settings.gemini_api_key,
+        )
+
+        return GeminiQuestionGenerator(
+            client=client,
+            model=settings.gemini_model,
+        )
+
+    if settings.interview_question_provider == "vertex_ai":
+        client = genai.Client(
+            vertexai=True,
+            project=settings.google_cloud_project,
+            location=settings.google_cloud_location,
+        )
 
         return GeminiQuestionGenerator(
             client=client,
@@ -54,10 +93,12 @@ _interview_execution_service = InterviewExecutionService(
 
 
 def get_interview_service() -> InterviewService:
-    """Provide the shared interview application service."""
+    """Provide the shared interview service."""
+
     return _interview_service
 
 
 def get_interview_execution_service() -> InterviewExecutionService:
     """Provide the shared interview execution service."""
+
     return _interview_execution_service

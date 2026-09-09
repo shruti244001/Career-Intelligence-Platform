@@ -2,6 +2,7 @@
 
 from collections.abc import Sequence
 from datetime import datetime
+from typing import Protocol
 from uuid import UUID, uuid4
 
 from careergraph.domain.interviews.models import (
@@ -16,14 +17,175 @@ from careergraph.domain.types import (
 )
 
 
-class InterviewService:
-    """Manage interview session use cases."""
+class InterviewRepository(Protocol):
+    """Persistence contract required by the interview application service."""
+
+    def create_interview(
+        self,
+        interview: InterviewSession,
+    ) -> InterviewSession:
+        """Create an interview session."""
+
+    def get_interview(
+        self,
+        interview_id: UUID,
+    ) -> InterviewSession | None:
+        """Retrieve an interview session."""
+
+    def list_candidate_interviews(
+        self,
+        candidate_id: UUID,
+    ) -> Sequence[InterviewSession]:
+        """List interviews for a candidate."""
+
+    def update_interview(
+        self,
+        interview: InterviewSession,
+    ) -> InterviewSession:
+        """Update an interview session."""
+
+    def create_question(
+        self,
+        question: InterviewQuestion,
+    ) -> InterviewQuestion:
+        """Create an interview question."""
+
+    def get_question(
+        self,
+        question_id: UUID,
+    ) -> InterviewQuestion | None:
+        """Retrieve an interview question."""
+
+    def list_interview_questions(
+        self,
+        interview_id: UUID,
+    ) -> Sequence[InterviewQuestion]:
+        """List questions for an interview."""
+
+    def create_response(
+        self,
+        response: InterviewResponse,
+    ) -> InterviewResponse:
+        """Create an interview response."""
+
+    def get_response(
+        self,
+        response_id: UUID,
+    ) -> InterviewResponse | None:
+        """Retrieve an interview response."""
+
+    def list_interview_responses(
+        self,
+        interview_id: UUID,
+    ) -> Sequence[InterviewResponse]:
+        """List responses for an interview."""
+
+
+class InMemoryInterviewRepository:
+    """In-memory implementation used by default and in unit tests."""
 
     def __init__(self) -> None:
-        """Initialize the in-memory interview store."""
+        """Initialize in-memory stores."""
         self._interviews: dict[UUID, InterviewSession] = {}
         self._questions: dict[UUID, InterviewQuestion] = {}
         self._responses: dict[UUID, InterviewResponse] = {}
+
+    def create_interview(
+        self,
+        interview: InterviewSession,
+    ) -> InterviewSession:
+        """Create or overwrite an interview session."""
+        self._interviews[interview.id] = interview
+        return interview
+
+    def get_interview(
+        self,
+        interview_id: UUID,
+    ) -> InterviewSession | None:
+        """Retrieve an interview session."""
+        return self._interviews.get(interview_id)
+
+    def list_candidate_interviews(
+        self,
+        candidate_id: UUID,
+    ) -> Sequence[InterviewSession]:
+        """List interviews for a candidate."""
+        return tuple(
+            interview
+            for interview in self._interviews.values()
+            if interview.candidate_id == candidate_id
+        )
+
+    def update_interview(
+        self,
+        interview: InterviewSession,
+    ) -> InterviewSession:
+        """Update an interview session."""
+        self._interviews[interview.id] = interview
+        return interview
+
+    def create_question(
+        self,
+        question: InterviewQuestion,
+    ) -> InterviewQuestion:
+        """Create or overwrite an interview question."""
+        self._questions[question.id] = question
+        return question
+
+    def get_question(
+        self,
+        question_id: UUID,
+    ) -> InterviewQuestion | None:
+        """Retrieve an interview question."""
+        return self._questions.get(question_id)
+
+    def list_interview_questions(
+        self,
+        interview_id: UUID,
+    ) -> Sequence[InterviewQuestion]:
+        """List questions for an interview."""
+        return tuple(
+            question
+            for question in self._questions.values()
+            if question.interview_id == interview_id
+        )
+
+    def create_response(
+        self,
+        response: InterviewResponse,
+    ) -> InterviewResponse:
+        """Create or overwrite an interview response."""
+        self._responses[response.id] = response
+        return response
+
+    def get_response(
+        self,
+        response_id: UUID,
+    ) -> InterviewResponse | None:
+        """Retrieve an interview response."""
+        return self._responses.get(response_id)
+
+    def list_interview_responses(
+        self,
+        interview_id: UUID,
+    ) -> Sequence[InterviewResponse]:
+        """List responses for an interview."""
+        return tuple(
+            response
+            for response in self._responses.values()
+            if response.interview_id == interview_id
+        )
+
+
+class InterviewService:
+    """Manage interview session use cases."""
+
+    def __init__(
+        self,
+        repository: InterviewRepository | None = None,
+    ) -> None:
+        """Initialize the service with an injectable repository."""
+        self._repository = repository or InMemoryInterviewRepository()
 
     def create_interview(
         self,
@@ -44,9 +206,7 @@ class InterviewService:
             title=title,
         )
 
-        self._interviews[interview.id] = interview
-
-        return interview
+        return self._repository.create_interview(interview)
 
     def get_interview(
         self,
@@ -54,7 +214,7 @@ class InterviewService:
     ) -> InterviewSession | None:
         """Return an interview session by identifier."""
 
-        return self._interviews.get(interview_id)
+        return self._repository.get_interview(interview_id)
 
     def list_candidate_interviews(
         self,
@@ -62,11 +222,7 @@ class InterviewService:
     ) -> Sequence[InterviewSession]:
         """Return all interviews belonging to a candidate."""
 
-        return tuple(
-            interview
-            for interview in self._interviews.values()
-            if interview.candidate_id == candidate_id
-        )
+        return self._repository.list_candidate_interviews(candidate_id)
 
     def start_interview(
         self,
@@ -76,7 +232,7 @@ class InterviewService:
     ) -> InterviewSession:
         """Start an interview session."""
 
-        current = self._interviews.get(interview.id)
+        current = self._repository.get_interview(interview.id)
 
         if current is None:
             raise ValueError("interview does not exist")
@@ -100,9 +256,7 @@ class InterviewService:
             completed_at=None,
         )
 
-        self._interviews[updated.id] = updated
-
-        return updated
+        return self._repository.update_interview(updated)
 
     def complete_interview(
         self,
@@ -112,7 +266,7 @@ class InterviewService:
     ) -> InterviewSession:
         """Complete an interview session."""
 
-        current = self._interviews.get(interview.id)
+        current = self._repository.get_interview(interview.id)
 
         if current is None:
             raise ValueError("interview does not exist")
@@ -136,9 +290,7 @@ class InterviewService:
             completed_at=completed_at,
         )
 
-        self._interviews[updated.id] = updated
-
-        return updated
+        return self._repository.update_interview(updated)
 
     def cancel_interview(
         self,
@@ -146,7 +298,7 @@ class InterviewService:
     ) -> InterviewSession:
         """Cancel an interview session."""
 
-        current = self._interviews.get(interview.id)
+        current = self._repository.get_interview(interview.id)
 
         if current is None:
             raise ValueError("interview does not exist")
@@ -173,9 +325,7 @@ class InterviewService:
             completed_at=interview.completed_at,
         )
 
-        self._interviews[updated.id] = updated
-
-        return updated
+        return self._repository.update_interview(updated)
 
     def add_question(
         self,
@@ -189,7 +339,7 @@ class InterviewService:
         question_id: UUID | None = None,
     ) -> InterviewQuestion:
         """Create and store an interview question."""
-        interview = self._interviews.get(interview_id)
+        interview = self._repository.get_interview(interview_id)
 
         if interview is None:
             raise ValueError("interview does not exist")
@@ -209,9 +359,7 @@ class InterviewService:
             asked_at=asked_at,
         )
 
-        self._questions[interview_question.id] = interview_question
-
-        return interview_question
+        return self._repository.create_question(interview_question)
 
     def get_question(
         self,
@@ -219,7 +367,7 @@ class InterviewService:
     ) -> InterviewQuestion | None:
         """Return an interview question by identifier."""
 
-        return self._questions.get(question_id)
+        return self._repository.get_question(question_id)
 
     def list_questions(
         self,
@@ -227,11 +375,7 @@ class InterviewService:
     ) -> Sequence[InterviewQuestion]:
         """Return questions belonging to an interview."""
 
-        return tuple(
-            question
-            for question in self._questions.values()
-            if question.interview_id == interview_id
-        )
+        return self._repository.list_interview_questions(interview_id)
 
     def add_response(
         self,
@@ -245,7 +389,7 @@ class InterviewService:
         response_id: UUID | None = None,
     ) -> InterviewResponse:
         """Create and store a candidate response."""
-        interview = self._interviews.get(interview_id)
+        interview = self._repository.get_interview(interview_id)
 
         if interview is None:
             raise ValueError("interview does not exist")
@@ -255,7 +399,7 @@ class InterviewService:
                 "responses can only be added to in-progress interviews"
             )
 
-        question = self._questions.get(question_id)
+        question = self._repository.get_question(question_id)
 
         if question is None:
             raise ValueError("question does not exist")
@@ -275,9 +419,7 @@ class InterviewService:
             responded_at=responded_at,
         )
 
-        self._responses[interview_response.id] = interview_response
-
-        return interview_response
+        return self._repository.create_response(interview_response)
 
     def get_response(
         self,
@@ -285,7 +427,7 @@ class InterviewService:
     ) -> InterviewResponse | None:
         """Return a response by identifier."""
 
-        return self._responses.get(response_id)
+        return self._repository.get_response(response_id)
 
     def list_responses(
         self,
@@ -293,8 +435,4 @@ class InterviewService:
     ) -> Sequence[InterviewResponse]:
         """Return responses belonging to an interview."""
 
-        return tuple(
-            response
-            for response in self._responses.values()
-            if response.interview_id == interview_id
-        )
+        return self._repository.list_interview_responses(interview_id)
