@@ -2656,7 +2656,7 @@ CareerGraph AI should follow data minimization principles. The system must **not
 
 ## 9.29 Database Technology
 
-The final database technology will be selected based on the MVP architecture and Google Cloud requirements.
+Firestore is being used as the application-oriented persistence layer for the MVP. Candidate profile persistence is currently implemented through a repository abstraction with an in-memory implementation for local/test use and a Firestore implementation for Google Cloud deployment. Other application entities will be migrated incrementally as their application-layer behavior stabilizes.
 
 ```
 Application
@@ -3989,10 +3989,14 @@ Skill Gap
     ↓
 Recommendation
 ```
+Candidate profile persistence is now implemented through the
+application repository boundary with a Firestore implementation for Google
+Cloud deployment and an in-memory implementation for local/test use.
+
 Resume ingestion, JD ingestion, production Gemini-powered extraction,
-agent orchestration, persistent Google Cloud storage, asynchronous workflow
-execution, authentication, and frontend delivery remain subsequent
-implementation phases.
+broader persistent storage for the remaining application entities, agent
+orchestration, asynchronous workflow execution, authentication, and frontend
+delivery remain subsequent implementation phases.
 
 # 11. AI, Gemini and Prompt Architecture
 
