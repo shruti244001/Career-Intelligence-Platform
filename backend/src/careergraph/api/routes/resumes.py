@@ -4,12 +4,14 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
 
+from careergraph.api.dependencies.candidates import get_candidate_profile_service
 from careergraph.api.dependencies.profile_extraction import (
     get_profile_extraction_service,
 )
 from careergraph.api.dependencies.resumes import get_resume_ingestion_service
 from careergraph.api.schemas.candidates import CandidateResponse
 from careergraph.api.schemas.resumes import ResumeExtractionResponse
+from careergraph.application.candidates.service import CandidateProfileService
 from careergraph.application.profile_extraction.service import (
     ProfileExtractionService,
 )
@@ -76,8 +78,11 @@ async def extract_resume_profile(
     profile_service: ProfileExtractionService = Depends(
         get_profile_extraction_service,
     ),
+    candidate_service: CandidateProfileService = Depends(
+        get_candidate_profile_service,
+    ),
 ) -> CandidateResponse:
-    """Extract a structured candidate profile from an uploaded resume."""
+    """Extract and persist a structured candidate profile from a resume."""
     content = await file.read()
 
     try:
@@ -91,6 +96,8 @@ async def extract_resume_profile(
             resume=resume,
             candidate_id=candidate_id,
         )
+
+        persisted_profile = candidate_service.persist_candidate(profile)
     except UnsupportedResumeFormatError as exc:
         raise HTTPException(
             status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
@@ -107,4 +114,4 @@ async def extract_resume_profile(
             detail=str(exc),
         ) from exc
 
-    return CandidateResponse.model_validate(profile)
+    return CandidateResponse.model_validate(persisted_profile)

@@ -48,6 +48,13 @@ class CandidateProfileService:
 
         return self._repository.create(candidate)
 
+    def persist_candidate(
+        self,
+        candidate: CandidateProfile,
+    ) -> CandidateProfile:
+        """Persist an existing candidate profile."""
+        return self._repository.create(candidate)
+
     def get_candidate(
         self,
         candidate: CandidateProfile | UUID,
