@@ -5,6 +5,10 @@ from fastapi import Depends
 from careergraph.api.dependencies.interviews import (
     get_interview_service,
 )
+from careergraph.api.dependencies.skill_gaps import (
+    get_skill_gap_service,
+    get_skill_state_service,
+)
 from careergraph.application.evaluations.service import EvaluationService
 from careergraph.application.evidence.service import EvidenceService
 from careergraph.application.interviews.evidence import (
@@ -14,8 +18,6 @@ from careergraph.application.interviews.evaluation import (
     InterviewEvaluationService,
 )
 from careergraph.application.interviews.service import InterviewService
-from careergraph.application.skill_gaps.service import SkillGapService
-from careergraph.application.skill_states.service import SkillStateService
 from careergraph.application.workflows.career_readiness import (
     CareerReadinessWorkflow,
 )
@@ -23,8 +25,6 @@ from careergraph.application.workflows.career_readiness import (
 
 _evaluation_service = EvaluationService()
 _evidence_service = EvidenceService()
-_skill_state_service = SkillStateService()
-_skill_gap_service = SkillGapService()
 
 
 def get_career_readiness_workflow(
@@ -46,6 +46,6 @@ def get_career_readiness_workflow(
     return CareerReadinessWorkflow(
         interview_service=interview_service,
         interview_evaluation_service=interview_evaluation_service,
-        skill_state_service=_skill_state_service,
-        skill_gap_service=_skill_gap_service,
+        skill_state_service=get_skill_state_service(),
+        skill_gap_service=get_skill_gap_service(),
     )

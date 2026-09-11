@@ -1,4 +1,4 @@
-"""Application service for resume profile extraction."""
+﻿"""Application service for resume profile extraction."""
 
 from uuid import UUID
 

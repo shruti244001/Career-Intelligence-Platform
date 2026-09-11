@@ -1,4 +1,4 @@
-"""Tests for deterministic profile extraction."""
+﻿"""Tests for deterministic profile extraction."""
 
 from decimal import Decimal
 from uuid import uuid4
@@ -83,4 +83,40 @@ def test_missing_optional_resume_sections_are_safe() -> None:
     assert profile.technologies == ()
     assert profile.projects == ()
     assert profile.summary is None
-    assert profile.years_of_experience == Decimal("0")
+    assert profile.years_of_experience == Decimal("0")
+
+
+def test_extract_multiple_projects_from_concatenated_resume_text() -> None:
+    """Concatenated PDF project text still produces clean project titles."""
+    candidate_id = uuid4()
+
+    resume = ExtractedResume(
+        filename="resume.txt",
+        media_type="text/plain",
+        file_size_bytes=1000,
+        text=(
+            "Shruti Sharma\n"
+            "shruti@example.com\n"
+            "\n"
+            "Projects\n"
+            "CareerGraph AI - Evidence-Based Career Intelligence Platform"
+            "evaluation and interview readiness system.\n"
+            "Facial Emotion Recognition System"
+            "computer vision techniques for emotion classification.\n"
+            "College Student Admission Analysis"
+            "datasets to identify factors affecting admission.\n"
+        ),
+    )
+
+    provider = DeterministicProfileExtractionProvider()
+
+    profile = provider.extract_profile(
+        resume=resume,
+        candidate_id=candidate_id,
+    )
+
+    assert profile.projects == (
+        "CareerGraph AI",
+        "Facial Emotion Recognition System",
+        "College Student Admission Analysis",
+    )

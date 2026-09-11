@@ -1,0 +1,12 @@
+steps:
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-f'
+      - 'frontend.Dockerfile'
+      - '-t'
+      - 'asia-south1-docker.pkg.dev/careergraph-ai-2531/careergraph/careergraph-frontend:latest'
+      - '.'
+
+images:
+  - 'asia-south1-docker.pkg.dev/careergraph-ai-2531/careergraph/careergraph-frontend:latest'
